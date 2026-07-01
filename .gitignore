@@ -1,0 +1,23 @@
+# Variáveis de ambiente / segredos
+.env
+.env.local
+.env.*.local
+*.env
+
+# Dependências
+node_modules/
+
+# Build Next.js
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
