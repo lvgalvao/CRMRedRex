@@ -23,6 +23,9 @@ export const createContactSchema = z.object({
   origem: z.enum(["inbound", "outbound"]).default("outbound"),
 });
 
+export const editCompanySchema = createCompanySchema.partial();
+export const editContactSchema = createContactSchema.partial();
+
 export type CreateCompanyInput = z.infer<typeof createCompanySchema>;
 export type CreateContactInput = z.infer<typeof createContactSchema>;
 
@@ -32,4 +35,12 @@ export function parseCreateCompany(input: unknown): CreateCompanyInput {
 
 export function parseCreateContact(input: unknown): CreateContactInput {
   return createContactSchema.parse(input);
+}
+
+export function parseEditCompany(input: unknown) {
+  return editCompanySchema.parse(input);
+}
+
+export function parseEditContact(input: unknown) {
+  return editContactSchema.parse(input);
 }

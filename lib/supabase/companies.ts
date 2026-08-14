@@ -43,3 +43,22 @@ export async function updateCompany(
   if (error) throw error;
   return data;
 }
+
+export async function deleteCompany(db: DB, id: string): Promise<void> {
+  const { error } = await db.from("companies").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/** Quantos contatos e oportunidades perdem o vínculo se a empresa for excluída. */
+export async function countCompanyLinks(
+  db: DB,
+  id: string,
+): Promise<{ contacts: number; deals: number }> {
+  const [contacts, deals] = await Promise.all([
+    db.from("contacts").select("id", { count: "exact", head: true }).eq("company_id", id),
+    db.from("deals").select("id", { count: "exact", head: true }).eq("company_id", id),
+  ]);
+  if (contacts.error) throw contacts.error;
+  if (deals.error) throw deals.error;
+  return { contacts: contacts.count ?? 0, deals: deals.count ?? 0 };
+}
