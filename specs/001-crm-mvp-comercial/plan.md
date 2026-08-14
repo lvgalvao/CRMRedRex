@@ -5,7 +5,7 @@
 
 ## Summary
 
-CRM comercial single-org da RedRex que responde às três perguntas do produto — *o que eu faço hoje?* (vendedor), *quanto vamos fechar este mês?* (gestor), *o que funciona pra vender?* (método). O MVP entrega 7 fatias de valor priorizadas: pipeline Kanban com dono e próxima ação (P1), tela "Hoje" (P1), propostas versionadas (P2), forecast ponderado × meta (P2), playbooks preenchidos por IA + WhatsApp click-to-send (P3), sincronização Calendly via polling (P3) e transcrição/análise pós-call por IA (P3).
+CRM comercial single-org da RedRex que responde às três perguntas do produto — _o que eu faço hoje?_ (vendedor), _quanto vamos fechar este mês?_ (gestor), _o que funciona pra vender?_ (método). O MVP entrega 7 fatias de valor priorizadas: pipeline Kanban com dono e próxima ação (P1), tela "Hoje" (P1), propostas versionadas (P2), forecast ponderado × meta (P2), playbooks preenchidos por IA + WhatsApp click-to-send (P3), sincronização Calendly via polling (P3) e transcrição/análise pós-call por IA (P3).
 
 **Abordagem técnica**: Next.js (App Router, TypeScript) + Supabase (Postgres + Auth + RLS), deploy Vercel (Cron para polling). Arquitetura em camadas estritas — UI compõe componentes pequenos; **toda** regra de negócio em `lib/services/`; acesso a dados em `lib/supabase/`; cada integração (Calendly, tl;dv, Anthropic, Gmail) atrás de uma interface em `lib/integrations/`. Invariantes não-negociáveis: forecast num único `computeForecast`; idempotência por UUID (`calendly_event_uid`/`meetingId`), nunca por título; push×pull chamam o mesmo `createDealFromBooking`; falha de IA não trava o pipeline; gatilhos finos (validam com zod, deduplicam, delegam, respondem rápido). O schema é o Apêndice A do PRD, aplicado como migration versionada.
 
@@ -23,17 +23,17 @@ CRM comercial single-org da RedRex que responde às três perguntas do produto �
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 Avaliação contra a Constituição v1.0.0 (`.specify/memory/constitution.md`):
 
-| Princípio | Aderência no plano | Status |
-|-----------|--------------------|--------|
-| **I. Orientação a vendas** | Cada história mapeia a uma das três perguntas; "Hoje" é a landing pós-login; sinais comerciais (atrasado em vermelho, forecast×meta no topo, proposta vencendo) são requisitos de UI. Nenhuma feature fora das três perguntas. | ✅ PASS |
-| **II. Arquitetura em camadas** | Estrutura de pastas do PRD seção 12 adotada literalmente; regra de negócio só em `lib/services/`; `computeForecast` único; cada integração atrás de interface em `lib/integrations/`; limite de ~300 linhas por arquivo. | ✅ PASS |
-| **III. Integrações idempotentes, gatilhos finos** | Dedup por `calendly_event_uid`/`meetingId` (nunca título); polling e webhook opcional chamam o mesmo `createDealFromBooking`; handlers validam (zod), deduplicam, delegam, respondem rápido; pesado async. | ✅ PASS |
-| **IV. Segurança e privacidade (LGPD)** | RLS em todas as tabelas; `service role key` só no servidor; segredos fora de `NEXT_PUBLIC_*`; HMAC nos webhooks; `CRON_SECRET`/sessão na sync; PII minimizada em logs e no payload da IA. | ✅ PASS |
-| **V. IA executa, humano decide** | IA só gera rascunho (Gmail draft, nunca envio); falha de IA capturada (deal segue); subagente de briefing é dev/manual, fora de produção; mudanças de schema/arquitetura param e perguntam. | ✅ PASS |
+| Princípio                                         | Aderência no plano                                                                                                                                                                                                             | Status  |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| **I. Orientação a vendas**                        | Cada história mapeia a uma das três perguntas; "Hoje" é a landing pós-login; sinais comerciais (atrasado em vermelho, forecast×meta no topo, proposta vencendo) são requisitos de UI. Nenhuma feature fora das três perguntas. | ✅ PASS |
+| **II. Arquitetura em camadas**                    | Estrutura de pastas do PRD seção 12 adotada literalmente; regra de negócio só em `lib/services/`; `computeForecast` único; cada integração atrás de interface em `lib/integrations/`; limite de ~300 linhas por arquivo.       | ✅ PASS |
+| **III. Integrações idempotentes, gatilhos finos** | Dedup por `calendly_event_uid`/`meetingId` (nunca título); polling e webhook opcional chamam o mesmo `createDealFromBooking`; handlers validam (zod), deduplicam, delegam, respondem rápido; pesado async.                     | ✅ PASS |
+| **IV. Segurança e privacidade (LGPD)**            | RLS em todas as tabelas; `service role key` só no servidor; segredos fora de `NEXT_PUBLIC_*`; HMAC nos webhooks; `CRON_SECRET`/sessão na sync; PII minimizada em logs e no payload da IA.                                      | ✅ PASS |
+| **V. IA executa, humano decide**                  | IA só gera rascunho (Gmail draft, nunca envio); falha de IA capturada (deal segue); subagente de briefing é dev/manual, fora de produção; mudanças de schema/arquitetura param e perguntam.                                    | ✅ PASS |
 
 **Resultado**: nenhuma violação. Complexity Tracking vazio. Gate aprovado para Phase 0.
 

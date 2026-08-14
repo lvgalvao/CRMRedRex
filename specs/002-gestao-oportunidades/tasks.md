@@ -27,8 +27,8 @@ O CRM da feature 001 está no ar: `deals`, `stages`, `contacts`, `companies`, Ka
 
 **Purpose**: garantir baseline verde antes de mexer em schema
 
-- [X] T001 Rodar `npm run lint` e `npm test` e confirmar que a suíte atual passa; anotar qualquer falha preexistente antes de qualquer alteração
-- [X] T002 Criar `supabase/migrations/0002_opportunities.sql` vazio com cabeçalho de comentário citando `specs/002-gestao-oportunidades/contracts/db-triggers.md` como contrato da migration
+- [x] T001 Rodar `npm run lint` e `npm test` e confirmar que a suíte atual passa; anotar qualquer falha preexistente antes de qualquer alteração
+- [x] T002 Criar `supabase/migrations/0002_opportunities.sql` vazio com cabeçalho de comentário citando `specs/002-gestao-oportunidades/contracts/db-triggers.md` como contrato da migration
 
 ---
 
@@ -38,18 +38,18 @@ O CRM da feature 001 está no ar: `deals`, `stages`, `contacts`, `companies`, Ka
 
 **⚠️ CRITICAL**: T003–T007 mudam o banco. Conforme o Princípio V da Constituição, o diff da migration deve ser apresentado e aprovado antes de aplicar (T007).
 
-- [X] T003 Em `supabase/migrations/0002_opportunities.sql`, adicionar as colunas `company_id uuid references companies(id) on delete set null`, `expected_close_date date` e `probability int check (probability is null or probability between 0 and 100)` em `public.deals`, mais a constraint `deals_value_nonneg`, o backfill de `company_id` a partir de `contacts.company_id` e os índices `deals(company_id)` e `deals(expected_close_date)`; **trocar a FK `deals.contact_id` de `on delete cascade` para `on delete restrict`** (achado F1 da análise: hoje excluir um contato apaga as oportunidades dele, contrariando o edge case de exclusão) — usar `if not exists` onde a sintaxe permitir (ordem 1–4 do contrato)
-- [X] T004 Em `supabase/migrations/0002_opportunities.sql`, criar `public.deal_history` com as colunas de `data-model.md`, o índice `(deal_id, created_at desc)`, `enable row level security` e **apenas** a política de `select` para `authenticated` (ordem 5–6 do contrato)
-- [X] T005 Em `supabase/migrations/0002_opportunities.sql`, criar `public.log_deal_change()` (`plpgsql`, `security definer`, `set search_path = public`) e o trigger `deals_log_change` `AFTER INSERT OR UPDATE` em `public.deals`, seguindo a tabela "Quando grava" e os campos derivados (`changed_by` validado contra `profiles`, `dwell_seconds` com piso 0) de `contracts/db-triggers.md` (ordem 7)
-- [X] T006 Revisar o diff completo de `supabase/migrations/0002_opportunities.sql` com o usuário e obter aprovação explícita antes de aplicar
-- [X] T007 Aplicar a migration (`supabase db push` ou MCP `apply_migration`) e rodar as quatro verificações SQL do `quickstart.md` §1 (3 colunas, RLS ativo, só política SELECT, trigger instalado)
-- [X] T008 Atualizar `lib/supabase/types.ts`: `Deal` ganha `company_id: string | null`, `expected_close_date: string | null` e `probability: number | null`; adicionar o tipo `DealHistory` espelhando `deal_history`; conferir contra os tipos gerados pelo MCP antes de colar
-- [X] T042 Em `lib/services/createDealFromBooking.ts`, passar `company_id: companyId` no `insertDeal` (a empresa já é resolvida na linha ~50 mas só é usada no contato) e, quando `companyId` for nulo, herdar do contato — sem isso toda oportunidade vinda do Calendly nasce sem cliente, violando FR-003 e SC-005 (achado F2 da análise; depende de T008)
-- [X] T009 [P] Criar `lib/services/dealStage.ts` (puro, sem banco e sem env) com `TERMINAL_STAGE`, `STAGE_TO_STATUS`, `isTerminalStage`, `statusForStage`, `effectiveProbability(deal, stage)` e `transitionForStage(currentStatus, stageName)` — esta última devolve o patch de status da mudança de etapa, incluindo a reabertura que limpa `lost_reason` e `reaquecer_em`
-- [X] T010 [P] Criar `lib/services/deals.schema.ts` (puro, zod) com `createDealSchema`, `editDealSchema`, `parseCreateDeal` e `parseEditDeal`, conforme a tabela de validação de `data-model.md`, com mensagens de erro em português
-- [X] T011 Ajustar `lib/services/closeDeal.schema.ts` para reexportar `TERMINAL_STAGE` de `lib/services/dealStage.ts` em vez de declará-lo, mantendo os imports atuais de `closeDeal.ts` funcionando (depende de T009)
-- [X] T012 [P] Criar `tests/unit/dealStage.test.ts` cobrindo `effectiveProbability` (herda quando nulo, prevalece quando ajustado), `statusForStage` nas 9 etapas e `transitionForStage` na reabertura de deal fechado (depende de T009)
-- [X] T013 [P] Criar `tests/unit/deals.schema.test.ts` cobrindo campos obrigatórios, valor negativo recusado, probabilidade fora de 0–100 recusada, probabilidade ausente aceita como `null` e data de previsão no passado aceita (depende de T010)
+- [x] T003 Em `supabase/migrations/0002_opportunities.sql`, adicionar as colunas `company_id uuid references companies(id) on delete set null`, `expected_close_date date` e `probability int check (probability is null or probability between 0 and 100)` em `public.deals`, mais a constraint `deals_value_nonneg`, o backfill de `company_id` a partir de `contacts.company_id` e os índices `deals(company_id)` e `deals(expected_close_date)`; **trocar a FK `deals.contact_id` de `on delete cascade` para `on delete restrict`** (achado F1 da análise: hoje excluir um contato apaga as oportunidades dele, contrariando o edge case de exclusão) — usar `if not exists` onde a sintaxe permitir (ordem 1–4 do contrato)
+- [x] T004 Em `supabase/migrations/0002_opportunities.sql`, criar `public.deal_history` com as colunas de `data-model.md`, o índice `(deal_id, created_at desc)`, `enable row level security` e **apenas** a política de `select` para `authenticated` (ordem 5–6 do contrato)
+- [x] T005 Em `supabase/migrations/0002_opportunities.sql`, criar `public.log_deal_change()` (`plpgsql`, `security definer`, `set search_path = public`) e o trigger `deals_log_change` `AFTER INSERT OR UPDATE` em `public.deals`, seguindo a tabela "Quando grava" e os campos derivados (`changed_by` validado contra `profiles`, `dwell_seconds` com piso 0) de `contracts/db-triggers.md` (ordem 7)
+- [x] T006 Revisar o diff completo de `supabase/migrations/0002_opportunities.sql` com o usuário e obter aprovação explícita antes de aplicar
+- [x] T007 Aplicar a migration (`supabase db push` ou MCP `apply_migration`) e rodar as quatro verificações SQL do `quickstart.md` §1 (3 colunas, RLS ativo, só política SELECT, trigger instalado)
+- [x] T008 Atualizar `lib/supabase/types.ts`: `Deal` ganha `company_id: string | null`, `expected_close_date: string | null` e `probability: number | null`; adicionar o tipo `DealHistory` espelhando `deal_history`; conferir contra os tipos gerados pelo MCP antes de colar
+- [x] T042 Em `lib/services/createDealFromBooking.ts`, passar `company_id: companyId` no `insertDeal` (a empresa já é resolvida na linha ~50 mas só é usada no contato) e, quando `companyId` for nulo, herdar do contato — sem isso toda oportunidade vinda do Calendly nasce sem cliente, violando FR-003 e SC-005 (achado F2 da análise; depende de T008)
+- [x] T009 [P] Criar `lib/services/dealStage.ts` (puro, sem banco e sem env) com `TERMINAL_STAGE`, `STAGE_TO_STATUS`, `isTerminalStage`, `statusForStage`, `effectiveProbability(deal, stage)` e `transitionForStage(currentStatus, stageName)` — esta última devolve o patch de status da mudança de etapa, incluindo a reabertura que limpa `lost_reason` e `reaquecer_em`
+- [x] T010 [P] Criar `lib/services/deals.schema.ts` (puro, zod) com `createDealSchema`, `editDealSchema`, `parseCreateDeal` e `parseEditDeal`, conforme a tabela de validação de `data-model.md`, com mensagens de erro em português
+- [x] T011 Ajustar `lib/services/closeDeal.schema.ts` para reexportar `TERMINAL_STAGE` de `lib/services/dealStage.ts` em vez de declará-lo, mantendo os imports atuais de `closeDeal.ts` funcionando (depende de T009)
+- [x] T012 [P] Criar `tests/unit/dealStage.test.ts` cobrindo `effectiveProbability` (herda quando nulo, prevalece quando ajustado), `statusForStage` nas 9 etapas e `transitionForStage` na reabertura de deal fechado (depende de T009)
+- [x] T013 [P] Criar `tests/unit/deals.schema.test.ts` cobrindo campos obrigatórios, valor negativo recusado, probabilidade fora de 0–100 recusada, probabilidade ausente aceita como `null` e data de previsão no passado aceita (depende de T010)
 
 **Checkpoint**: schema aplicado, tipos atualizados, camadas puras testadas — as três histórias podem começar
 
@@ -61,13 +61,13 @@ O CRM da feature 001 está no ar: `deals`, `stages`, `contacts`, `companies`, Ka
 
 **Independent Test**: preencher `/deals/novo` com cliente e contato existentes e salvar; a oportunidade aparece na coluna da etapa escolhida no `/pipeline`, com valor, responsável e previsão corretos, e persiste após recarregar.
 
-- [X] T014 [US1] Reescrever `createDeal` em `lib/services/deals.ts`: validar com `parseCreateDeal`, herdar `company_id` do contato quando ausente, **recusar** contato que não pertence ao cliente informado, resolver `owner_id` com `getCurrentProfile()` como default e forçar `status='open'` (depende de T008, T010)
-- [X] T015 [P] [US1] Criar `components/deals/DealForm.tsx` (Client Component) com os campos de `data-model.md`: select de cliente que filtra em memória os contatos daquele cliente (D6), probabilidade pré-preenchida com a da etapa selecionada e marcada como "ajustado" quando alterada, e exibição de erro por campo sem limpar o formulário
-- [X] T016 [US1] Criar `app/(crm)/deals/actions.ts` com `createDealAction(prevState, formData)`: `"use server"`, extrai do `FormData`, delega a `createDeal`, devolve estado de erro em caso de `ZodError` (sem `throw` que derrube a página), `revalidatePath("/deals")` e `revalidatePath("/pipeline")`, e redireciona para `/deals/{id}` no sucesso (depende de T014)
-- [X] T017 [US1] Criar `app/(crm)/deals/novo/page.tsx` (Server Component) carregando empresas (`listCompanies`), contatos (`listContacts`), etapas (`listStages`) e perfis (`listProfiles`), e compondo `DealForm` com `createDealAction` (depende de T015, T016)
-- [X] T018 [US1] Alterar `lib/services/computeForecast.ts`: incluir `probability` no `select` de `computeForecast` e trocar `stage.probability / 100` por `effectiveProbability(d, stage) / 100` em `computeForecastFromData`, mantendo a assinatura pública intacta (depende de T009)
-- [X] T019 [P] [US1] Ampliar `tests/unit/computeForecast.test.ts` com casos de probabilidade ajustada por oportunidade, probabilidade nula herdando a etapa e deal fechado fora do ponderado (depende de T018)
-- [X] T020 [P] [US1] Em `app/(crm)/pipeline/page.tsx`, apontar o botão do cabeçalho para `/deals/novo` com o rótulo "+ Nova oportunidade" (o link atual leva a `/contacts`)
+- [x] T014 [US1] Reescrever `createDeal` em `lib/services/deals.ts`: validar com `parseCreateDeal`, herdar `company_id` do contato quando ausente, **recusar** contato que não pertence ao cliente informado, resolver `owner_id` com `getCurrentProfile()` como default e forçar `status='open'` (depende de T008, T010)
+- [x] T015 [P] [US1] Criar `components/deals/DealForm.tsx` (Client Component) com os campos de `data-model.md`: select de cliente que filtra em memória os contatos daquele cliente (D6), probabilidade pré-preenchida com a da etapa selecionada e marcada como "ajustado" quando alterada, e exibição de erro por campo sem limpar o formulário
+- [x] T016 [US1] Criar `app/(crm)/deals/actions.ts` com `createDealAction(prevState, formData)`: `"use server"`, extrai do `FormData`, delega a `createDeal`, devolve estado de erro em caso de `ZodError` (sem `throw` que derrube a página), `revalidatePath("/deals")` e `revalidatePath("/pipeline")`, e redireciona para `/deals/{id}` no sucesso (depende de T014)
+- [x] T017 [US1] Criar `app/(crm)/deals/novo/page.tsx` (Server Component) carregando empresas (`listCompanies`), contatos (`listContacts`), etapas (`listStages`) e perfis (`listProfiles`), e compondo `DealForm` com `createDealAction` (depende de T015, T016)
+- [x] T018 [US1] Alterar `lib/services/computeForecast.ts`: incluir `probability` no `select` de `computeForecast` e trocar `stage.probability / 100` por `effectiveProbability(d, stage) / 100` em `computeForecastFromData`, mantendo a assinatura pública intacta (depende de T009)
+- [x] T019 [P] [US1] Ampliar `tests/unit/computeForecast.test.ts` com casos de probabilidade ajustada por oportunidade, probabilidade nula herdando a etapa e deal fechado fora do ponderado (depende de T018)
+- [x] T020 [P] [US1] Em `app/(crm)/pipeline/page.tsx`, apontar o botão do cabeçalho para `/deals/novo` com o rótulo "+ Nova oportunidade" (o link atual leva a `/contacts`)
 
 **Checkpoint**: US1 funcional — dá para cadastrar uma oportunidade manual e vê-la no funil e no forecast
 
@@ -79,13 +79,13 @@ O CRM da feature 001 está no ar: `deals`, `stages`, `contacts`, `companies`, Ka
 
 **Independent Test**: mover uma oportunidade por três etapas e fechá-la como Ganha; a linha do tempo mostra as transições em ordem, cada uma com autor, data/hora, origem, destino e tempo de permanência.
 
-- [X] T022 [P] [US2] Criar `lib/supabase/dealHistory.ts` com `listHistoryByDeal(db, dealId)` retornando `DealHistoryEntry[]` (join de etapas e autor, `created_at desc`), **somente leitura** — sem `insert`, `update` ou `delete` (depende de T007, T008)
-- [X] T023 [US2] Reescrever `moveDeal` em `lib/services/deals.ts`: no-op quando a etapa é a mesma; aplicar `transitionForStage` para derivar o status ao entrar em etapa terminal e para reabrir (limpando `lost_reason` e `reaquecer_em`) ao voltar para etapa ativa; gravar etapa, posição e status **no mesmo UPDATE**, para que o trigger produza um único registro de histórico (depende de T009)
-- [X] T024 [P] [US2] Criar `components/deals/DealHistory.tsx` (Server Component) exibindo a linha do tempo: "Etapa X → Y" e/ou "Status A → B", autor (`null` → "Sistema"), data/hora e tempo de permanência formatado em dias/horas (depende de T022)
-- [X] T025 [P] [US2] Criar `components/deals/StageStatusControl.tsx` (Client Component) com select de etapa e atalho de status; ao escolher uma etapa terminal, direcionar ao `CloseDealDialog` já existente em vez de fechar sem motivo (ressalva registrada em `contracts/internal-services.md`)
-- [X] T026 [US2] Em `app/(crm)/deals/[id]/actions.ts`, adicionar `changeStageAction(dealId, formData)` chamando `moveDeal` e revalidando `/deals/{id}`, `/deals`, `/pipeline` e `/hoje` (depende de T023)
-- [X] T027 [US2] Em `app/(crm)/deals/[id]/page.tsx`, compor `StageStatusControl` e `DealHistory`, carregando o histórico com `listHistoryByDeal` (depende de T024, T025, T026)
-- [X] T028 [US2] Executar os 7 casos de verificação do trigger em `contracts/db-triggers.md` (abertura registra, update de valor não registra, mudança de etapa registra com `dwell_seconds > 0`, etapa+status geram um só registro, mesma etapa não registra, escrita direta em `deal_history` recusada, service role grava autor nulo) e anotar os resultados (depende de T007, T023)
+- [x] T022 [P] [US2] Criar `lib/supabase/dealHistory.ts` com `listHistoryByDeal(db, dealId)` retornando `DealHistoryEntry[]` (join de etapas e autor, `created_at desc`), **somente leitura** — sem `insert`, `update` ou `delete` (depende de T007, T008)
+- [x] T023 [US2] Reescrever `moveDeal` em `lib/services/deals.ts`: no-op quando a etapa é a mesma; aplicar `transitionForStage` para derivar o status ao entrar em etapa terminal e para reabrir (limpando `lost_reason` e `reaquecer_em`) ao voltar para etapa ativa; gravar etapa, posição e status **no mesmo UPDATE**, para que o trigger produza um único registro de histórico (depende de T009)
+- [x] T024 [P] [US2] Criar `components/deals/DealHistory.tsx` (Server Component) exibindo a linha do tempo: "Etapa X → Y" e/ou "Status A → B", autor (`null` → "Sistema"), data/hora e tempo de permanência formatado em dias/horas (depende de T022)
+- [x] T025 [P] [US2] Criar `components/deals/StageStatusControl.tsx` (Client Component) com select de etapa e atalho de status; ao escolher uma etapa terminal, direcionar ao `CloseDealDialog` já existente em vez de fechar sem motivo (ressalva registrada em `contracts/internal-services.md`)
+- [x] T026 [US2] Em `app/(crm)/deals/[id]/actions.ts`, adicionar `changeStageAction(dealId, formData)` chamando `moveDeal` e revalidando `/deals/{id}`, `/deals`, `/pipeline` e `/hoje` (depende de T023)
+- [x] T027 [US2] Em `app/(crm)/deals/[id]/page.tsx`, compor `StageStatusControl` e `DealHistory`, carregando o histórico com `listHistoryByDeal` (depende de T024, T025, T026)
+- [x] T028 [US2] Executar os 7 casos de verificação do trigger em `contracts/db-triggers.md` (abertura registra, update de valor não registra, mudança de etapa registra com `dwell_seconds > 0`, etapa+status geram um só registro, mesma etapa não registra, escrita direta em `deal_history` recusada, service role grava autor nulo) e anotar os resultados (depende de T007, T023)
 
 **Checkpoint**: US1 e US2 funcionam de forma independente — funil operável com auditoria completa
 
@@ -97,15 +97,15 @@ O CRM da feature 001 está no ar: `deals`, `stages`, `contacts`, `companies`, Ka
 
 **Independent Test**: editar valor, previsão e responsável de uma oportunidade; os novos dados aparecem no detalhe, no card do Kanban e nas visões por vendedor, sem perder atividades, propostas ou histórico.
 
-- [ ] T029 [P] [US3] Em `lib/supabase/deals.ts`, adicionar o tipo `DealWithRelations` (contato, empresa, etapa, responsável) e `listDealsFiltered(db, { ownerId?, stageId?, status? })` em uma única consulta com joins; ampliar `getDeal` para trazer também `company` e `stage`, **mantendo `DealWithContact` como tipo do Kanban** para não quebrar `KanbanBoard`/`KanbanCard` (achado F14; depende de T008)
-- [ ] T030 [US3] Implementar `editDeal` em `lib/services/deals.ts` com `parseEditDeal`, revalidando a coerência contato↔cliente quando qualquer um dos dois mudar, sem alterar `stage_id` nem `status` (caminhos próprios da US2) (depende de T010)
-- [ ] T031 [US3] Em `app/(crm)/deals/[id]/actions.ts`, adicionar `editDealAction(dealId, formData)` delegando a `editDeal`, com estado de erro por campo e revalidação de `/deals/{id}`, `/deals`, `/pipeline` e `/hoje` (depende de T030)
-- [ ] T032 [US3] Criar `app/(crm)/deals/[id]/editar/page.tsx` reutilizando `DealForm` em modo edição, pré-preenchido com os dados atuais (depende de T015, T031)
-- [ ] T033 [P] [US3] Criar `components/deals/DealFilters.tsx` (Client Component) com filtros de responsável, etapa e status, sincronizados por query string
-- [ ] T034 [US3] Criar `app/(crm)/deals/page.tsx` (Server Component): lista as oportunidades via `listDealsFiltered`, compõe `DealFilters`, exibe cliente, contato, etapa, responsável, valor, probabilidade efetiva, previsão e status, e mostra a **soma dos valores** do conjunto filtrado (depende de T029, T033)
-- [ ] T021 [P] [US3] Em `components/layout/AppSidebar.tsx`, adicionar o item de navegação "Oportunidades" apontando para `/deals`, no grupo do Pipeline (movida da US1 pelo achado F3: o link ficaria quebrado até `/deals` existir em T034; depende de T034)
-- [ ] T035 [P] [US3] Em `components/pipeline/KanbanCard.tsx`, sinalizar previsão de fechamento vencida em vermelho (`#DC2626`, reservado a atraso/erro) quando `expected_close_date < hoje` e `status === 'open'`, reaproveitando o padrão do `overdue` já existente
-- [ ] T036 [US3] Em `app/(crm)/deals/[id]/page.tsx`, exibir no cabeçalho cliente, previsão de fechamento (em vermelho se vencida) e probabilidade efetiva com o marcador "ajustado" quando houver ajuste manual (depende de T029)
+- [x] T029 [P] [US3] Em `lib/supabase/deals.ts`, adicionar o tipo `DealWithRelations` (contato, empresa, etapa, responsável) e `listDealsFiltered(db, { ownerId?, stageId?, status? })` em uma única consulta com joins; ampliar `getDeal` para trazer também `company` e `stage`, **mantendo `DealWithContact` como tipo do Kanban** para não quebrar `KanbanBoard`/`KanbanCard` (achado F14; depende de T008)
+- [x] T030 [US3] Implementar `editDeal` em `lib/services/deals.ts` com `parseEditDeal`, revalidando a coerência contato↔cliente quando qualquer um dos dois mudar, sem alterar `stage_id` nem `status` (caminhos próprios da US2) (depende de T010)
+- [x] T031 [US3] Em `app/(crm)/deals/[id]/actions.ts`, adicionar `editDealAction(dealId, formData)` delegando a `editDeal`, com estado de erro por campo e revalidação de `/deals/{id}`, `/deals`, `/pipeline` e `/hoje` (depende de T030)
+- [x] T032 [US3] Criar `app/(crm)/deals/[id]/editar/page.tsx` reutilizando `DealForm` em modo edição, pré-preenchido com os dados atuais (depende de T015, T031)
+- [x] T033 [P] [US3] Criar `components/deals/DealFilters.tsx` (Client Component) com filtros de responsável, etapa e status, sincronizados por query string
+- [x] T034 [US3] Criar `app/(crm)/deals/page.tsx` (Server Component): lista as oportunidades via `listDealsFiltered`, compõe `DealFilters`, exibe cliente, contato, etapa, responsável, valor, probabilidade efetiva, previsão e status, e mostra a **soma dos valores** do conjunto filtrado (depende de T029, T033)
+- [x] T021 [P] [US3] Em `components/layout/AppSidebar.tsx`, adicionar o item de navegação "Oportunidades" apontando para `/deals`, no grupo do Pipeline (movida da US1 pelo achado F3: o link ficaria quebrado até `/deals` existir em T034; depende de T034)
+- [x] T035 [P] [US3] Em `components/pipeline/KanbanCard.tsx`, sinalizar previsão de fechamento vencida em vermelho (`#DC2626`, reservado a atraso/erro) quando `expected_close_date < hoje` e `status === 'open'`, reaproveitando o padrão do `overdue` já existente
+- [x] T036 [US3] Em `app/(crm)/deals/[id]/page.tsx`, exibir no cabeçalho cliente, previsão de fechamento (em vermelho se vencida) e probabilidade efetiva com o marcador "ajustado" quando houver ajuste manual (depende de T029)
 
 **Checkpoint**: as três histórias funcionam de forma independente
 
@@ -113,11 +113,11 @@ O CRM da feature 001 está no ar: `deals`, `stages`, `contacts`, `companies`, Ka
 
 ## Phase 6: Polish & Cross-Cutting
 
-- [ ] T037 Verificar o limite de ~300 linhas por arquivo em `app/(crm)/deals/[id]/page.tsx` e `components/deals/DealForm.tsx`; quebrar em componentes menores se ultrapassar
-- [ ] T038 [P] Rodar `npm run lint`, `npm run format` e `npm test` e deixar tudo verde
-- [ ] T039 Executar os 14 itens do smoke test de `quickstart.md` §4 e registrar o resultado de cada um
-- [ ] T040 [P] Conferir a nomenclatura de interface: toda tela nova usa o rótulo **Oportunidade** (o código e o banco continuam em `deal`/`deals`, conforme D1)
-- [ ] T041 Revisar aderência à Constituição antes de fechar: forecast calculado só em `computeForecast`, nenhuma regra de negócio em action ou componente, nenhum segredo novo, `deal_history` sem política de escrita
+- [X] T037 Verificar o limite de ~300 linhas por arquivo em `app/(crm)/deals/[id]/page.tsx` e `components/deals/DealForm.tsx`; quebrar em componentes menores se ultrapassar
+- [X] T038 [P] Rodar `npm run lint`, `npm run format` e `npm test` e deixar tudo verde
+- [ ] T039 Executar os 14 itens do smoke test de `quickstart.md` §4 e registrar o resultado de cada um — **pendente: exige sessão autenticada**. Já verificados sem sessão: build das 4 rotas, proteção por login (307), trigger no banco real e ordenação do histórico
+- [X] T040 [P] Conferir a nomenclatura de interface: toda tela nova usa o rótulo **Oportunidade** (o código e o banco continuam em `deal`/`deals`, conforme D1)
+- [X] T041 Revisar aderência à Constituição antes de fechar: forecast calculado só em `computeForecast`, nenhuma regra de negócio em action ou componente, nenhum segredo novo, `deal_history` sem política de escrita
 
 ---
 
@@ -182,9 +182,9 @@ Task: "Criar components/deals/StageStatusControl.tsx"
 ### Entrega incremental
 
 1. Setup + Foundational → base pronta (schema, tipos, camadas puras)
-2. + US1 → cadastro manual funcionando (MVP)
-3. + US2 → funil com auditoria (itens 7–10 do smoke test)
-4. + US3 → edição, listagem filtrável e sinais visuais (itens 11–14)
+2. - US1 → cadastro manual funcionando (MVP)
+3. - US2 → funil com auditoria (itens 7–10 do smoke test)
+4. - US3 → edição, listagem filtrável e sinais visuais (itens 11–14)
 
 ### Riscos e pontos de atenção
 

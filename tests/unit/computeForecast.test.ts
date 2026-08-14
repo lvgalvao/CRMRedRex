@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeForecastFromData } from "@/lib/services/computeForecast";
+import { computeForecastFromData, weightedValue } from "@/lib/services/computeForecast";
 import type { Deal, Goal, Stage } from "@/lib/supabase/types";
 
 const stages: Pick<Stage, "id" | "name" | "probability">[] = [
@@ -52,8 +52,15 @@ describe("computeForecast (FR-017/FR-018, SC-003)", () => {
   });
 
   it("calcula % de atingimento contra a meta do time (owner_id null)", () => {
-    const goals: Pick<Goal, "owner_id" | "target_value">[] = [{ owner_id: null, target_value: 2800 }];
-    const f = computeForecastFromData([d({ stage_id: "s2", value: 1000 })], stages, goals, "2026-05-01");
+    const goals: Pick<Goal, "owner_id" | "target_value">[] = [
+      { owner_id: null, target_value: 2800 },
+    ];
+    const f = computeForecastFromData(
+      [d({ stage_id: "s2", value: 1000 })],
+      stages,
+      goals,
+      "2026-05-01",
+    );
     expect(f.vsGoal.target).toBe(2800);
     expect(f.vsGoal.weighted).toBe(800);
     expect(f.vsGoal.attainmentPct).toBe(28.6);
@@ -115,7 +122,7 @@ describe("forecast com probabilidade ajustada (FR-008a)", () => {
     const f = computeForecastFromData(
       [
         d({ stage_id: "s1", value: 1000, probability: null }), // 600
-        d({ stage_id: "s2", value: 1000, probability: 50 }),   // 500
+        d({ stage_id: "s2", value: 1000, probability: 50 }), // 500
       ],
       stages,
       [],
@@ -133,5 +140,26 @@ describe("forecast com probabilidade ajustada (FR-008a)", () => {
     );
     expect(f.total.weighted).toBe(0);
     expect(f.total.gross).toBe(0);
+  });
+});
+
+describe("weightedValue — unidade da regra de forecast (FR-008a, FR-013)", () => {
+  it("aplica a probabilidade da etapa quando não há ajuste", () => {
+    expect(weightedValue({ value: 1000, probability: null, status: "open" }, { probability: 60 })).toBe(600);
+  });
+
+  it("aplica o ajuste manual quando existe", () => {
+    expect(weightedValue({ value: 1000, probability: 25, status: "open" }, { probability: 60 })).toBe(250);
+  });
+
+  it("zera para oportunidades fechadas, qualquer que seja a probabilidade", () => {
+    for (const status of ["won", "lost", "standby"] as const) {
+      expect(weightedValue({ value: 1000, probability: 90, status }, { probability: 60 })).toBe(0);
+    }
+  });
+
+  it("trata valor e etapa ausentes como zero", () => {
+    expect(weightedValue({ value: null, probability: null, status: "open" }, { probability: 60 })).toBe(0);
+    expect(weightedValue({ value: 1000, probability: null, status: "open" }, null)).toBe(0);
   });
 });

@@ -7,7 +7,7 @@
 
 ## Contexto e reuso
 
-O CRM já possui a **Oportunidade** como registro central do pipeline (chamada de *deal* na
+O CRM já possui a **Oportunidade** como registro central do pipeline (chamada de _deal_ na
 base atual), com cliente (empresa), contato, valor, etapa, responsável e status, além do
 Kanban, da tela de detalhe e do fechamento Ganho/Perdido/Stand-by. Esta feature **não cria
 uma entidade paralela**: ela completa a Oportunidade existente com o que falta para a
@@ -22,7 +22,7 @@ mudanças de etapa e status. Duplicar a entidade quebraria o forecast, o Kanban 
 - **Probabilidade**: campo próprio da oportunidade, pré-preenchido pela etapa e ajustável pelo vendedor; o forecast usa o ajuste manual quando existir (FR-008, FR-008a, FR-008b).
 - **Histórico**: registra apenas mudanças de etapa e de status, com tempo de permanência (FR-019).
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Cadastrar uma oportunidade manualmente (Priority: P1)
 
@@ -112,7 +112,7 @@ refletem no forecast do mês correspondente.
 - Oportunidade criada automaticamente pelo agendamento (Calendly): é a mesma entidade e deve ser editável pelo mesmo formulário, sem duplicar registro.
 - Responsável desligado do time: suas oportunidades permanecem no funil e podem ser reatribuídas em lote ou individualmente.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -156,7 +156,7 @@ refletem no forecast do mês correspondente.
 - **FR-024**: O sistema DEVE restringir todo acesso a oportunidades a usuários autenticados do time.
 - **FR-025**: O sistema DEVE preservar atividades, propostas e histórico existentes quando o contato, o cliente ou o responsável da oportunidade forem alterados.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Oportunidade**: negócio em andamento com um cliente. Atributos: nome, valor, probabilidade (herdada da etapa ou ajustada manualmente), previsão de fechamento, status (Aberta, Ganha, Perdida, Stand-by), próxima ação e data. Relaciona-se a um Cliente, um Contato, uma Etapa e um Responsável; acumula Atividades, Propostas e Histórico. É a mesma entidade central já usada pelo Kanban, pela tela "Hoje" e pelo forecast.
 - **Cliente**: empresa com quem se negocia. Agrupa contatos e oportunidades.
@@ -165,7 +165,7 @@ refletem no forecast do mês correspondente.
 - **Responsável**: membro do time dono da oportunidade — quem é cobrado por ela e para quem ela aparece na tela "Hoje".
 - **Histórico da oportunidade**: registro imutável de uma mudança — origem, destino, autor, data/hora e tempo de permanência anterior.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

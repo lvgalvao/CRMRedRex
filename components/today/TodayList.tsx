@@ -5,9 +5,7 @@ import { cn } from "@/lib/utils";
 export function TodayList({ items }: { items: TodayItem[] }) {
   if (items.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Nada pendente para hoje. Bom trabalho. 🎯
-      </p>
+      <p className="text-sm text-muted-foreground">Nada pendente para hoje. Bom trabalho. 🎯</p>
     );
   }
   return (

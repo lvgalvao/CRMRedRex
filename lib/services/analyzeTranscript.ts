@@ -71,7 +71,11 @@ export async function analyzeTranscript(
         })
       : analysis.resumo;
 
-    const draft = await createGmailDraft(deal?.contact?.email ?? "", "Follow-up pós-diagnóstico", draftBody);
+    const draft = await createGmailDraft(
+      deal?.contact?.email ?? "",
+      "Follow-up pós-diagnóstico",
+      draftBody,
+    );
     // Se o Gmail não está configurado, guarda o rascunho como atividade (revisão humana).
     await insertActivity(db, {
       deal_id: dealId,

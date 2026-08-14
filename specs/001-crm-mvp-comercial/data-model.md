@@ -18,7 +18,9 @@ templates (sem FK; biblioteca)
 ## Entidades
 
 ### profiles
+
 Membro do time; dono de deals e unidade do ranking.
+
 - `id` uuid PK → `auth.users(id)` ON DELETE CASCADE
 - `name` text **NOT NULL**
 - `role` text NOT NULL default `'vendedor'` — enum `{vendedor, gestor}`
@@ -26,7 +28,9 @@ Membro do time; dono de deals e unidade do ranking.
 - **Regras**: criado no primeiro login (trigger ou serviço). `role` define quem cadastra metas (gestor) e como o ranking é composto.
 
 ### companies
+
 Organização cliente.
+
 - `id` uuid PK
 - `name` text **NOT NULL**
 - `domain` text (nullable)
@@ -34,7 +38,9 @@ Organização cliente.
 - **Regras**: `find-or-create` por nome/domínio na sincronização para não duplicar.
 
 ### contacts
+
 Pessoa em uma empresa; alvo do WhatsApp click-to-send.
+
 - `id` uuid PK
 - `company_id` uuid → `companies(id)` ON DELETE SET NULL
 - `name` text **NOT NULL**
@@ -45,7 +51,9 @@ Pessoa em uma empresa; alvo do WhatsApp click-to-send.
 - **Regras**: `email` único sustenta o `find-or-create` da sincronização (US6 edge case). Sem `phone` válido, WhatsApp informa falta em vez de abrir conversa inválida (FR-015).
 
 ### stages
+
 Etapa do funil; `probability` alimenta o forecast.
+
 - `id` uuid PK
 - `name` text **NOT NULL**
 - `position` int **NOT NULL**
@@ -55,7 +63,9 @@ Etapa do funil; `probability` alimenta o forecast.
 - **Regras**: "Qualificado" é gate do outbound (só agenda diagnóstico depois). Etapas terminais (Ganho/Perdido/Stand-by) não entram no forecast ponderado de abertos.
 
 ### deals
+
 Oportunidade — entidade central; sustenta a maioria dos KPIs.
+
 - `id` uuid PK
 - `contact_id` uuid **NOT NULL** → `contacts(id)` ON DELETE CASCADE
 - `stage_id` uuid **NOT NULL** → `stages(id)`
@@ -76,7 +86,9 @@ Oportunidade — entidade central; sustenta a maioria dos KPIs.
 - **Índices**: `stage_id`, `contact_id`, `owner_id`, `next_action_date`, `status`.
 
 ### proposals
+
 Proposta como objeto de primeira classe; versionada.
+
 - `id` uuid PK
 - `deal_id` uuid **NOT NULL** → `deals(id)` ON DELETE CASCADE
 - `version` int NOT NULL default 1
@@ -89,7 +101,9 @@ Proposta como objeto de primeira classe; versionada.
 - **Regras**: mudar status move o deal para a etapa correspondente (FR-012); proposta vencida (`valid_until < hoje`) é destacada.
 
 ### templates
+
 Biblioteca de playbooks que a IA preenche.
+
 - `id` uuid PK
 - `name` text **NOT NULL**
 - `category` text NOT NULL — enum `{diagnostico, objecao, followup, proposta, reengajamento}`
@@ -98,7 +112,9 @@ Biblioteca de playbooks que a IA preenche.
 - **Seed (Apêndice A)**: 5 playbooks (um por categoria).
 
 ### goals
+
 Meta mensal — do time (`owner_id` null) ou por vendedor.
+
 - `id` uuid PK
 - `owner_id` uuid → `profiles(id)` ON DELETE CASCADE (null = meta do time)
 - `month` date **NOT NULL** — primeiro dia do mês
@@ -108,7 +124,9 @@ Meta mensal — do time (`owner_id` null) ou por vendedor.
 - **Regras**: cadastro pelo gestor; cruzada com `computeForecast` para % de atingimento.
 
 ### activities
+
 Evento na timeline de deal/contato.
+
 - `id` uuid PK
 - `deal_id` uuid → `deals(id)` ON DELETE CASCADE (nullable)
 - `contact_id` uuid → `contacts(id)` ON DELETE CASCADE (nullable)
@@ -119,7 +137,9 @@ Evento na timeline de deal/contato.
 - **Regras**: idempotência de transcript/análise apoiada em `metadata` (ex.: `meetingId`) + checagem no serviço; briefing pré-call grava `metadata.kind='briefing'`.
 
 ### sync_state
+
 Marca d'água do polling (otimização; corretude vem do dedup por UUID).
+
 - `key` text PK
 - `value` text (nullable)
 - `updated_at` timestamptz
@@ -137,32 +157,35 @@ Marca d'água do polling (otimização; corretude vem do dedup por UUID).
 
 ## Regras de validação (camada de serviço, `lib/services/`)
 
-| Regra | Onde | Origem |
-|-------|------|--------|
-| Fechamento `won` exige `deal_type`; se `recorrente`, `mrr > 0` | `closeDeal` | FR-007, SC-009, edge "Ganho/recorrente sem MRR" |
-| Fechamento `lost` exige `lost_reason` no enum | `closeDeal` | FR-007, SC-009 |
-| Fechamento `standby` exige `reaquecer_em` | `closeDeal` | FR-007, SC-009 |
-| Deal criado por sync nasce com `owner_id` + `next_action` + `next_action_date` | `createDealFromBooking` | FR-020, SC-005 |
-| Dedup por `calendly_event_uid` (nunca título) | `createDealFromBooking` | FR-021, Princípio III |
-| Dedup de transcript/análise por `meetingId` | `analyzeTranscript`/handler tl;dv | FR-024 |
-| WhatsApp exige `phone` E.164 válido | `lib/whatsapp.ts` | FR-015, edge "telefone fora do padrão" |
-| Forecast só de `status='open'`, `Σ value × probability/100` | `computeForecast` (único) | FR-017, Princípio II |
-| Mudança de status de proposta move o deal | `services/proposals` | FR-012 |
+| Regra                                                                          | Onde                              | Origem                                          |
+| ------------------------------------------------------------------------------ | --------------------------------- | ----------------------------------------------- |
+| Fechamento `won` exige `deal_type`; se `recorrente`, `mrr > 0`                 | `closeDeal`                       | FR-007, SC-009, edge "Ganho/recorrente sem MRR" |
+| Fechamento `lost` exige `lost_reason` no enum                                  | `closeDeal`                       | FR-007, SC-009                                  |
+| Fechamento `standby` exige `reaquecer_em`                                      | `closeDeal`                       | FR-007, SC-009                                  |
+| Deal criado por sync nasce com `owner_id` + `next_action` + `next_action_date` | `createDealFromBooking`           | FR-020, SC-005                                  |
+| Dedup por `calendly_event_uid` (nunca título)                                  | `createDealFromBooking`           | FR-021, Princípio III                           |
+| Dedup de transcript/análise por `meetingId`                                    | `analyzeTranscript`/handler tl;dv | FR-024                                          |
+| WhatsApp exige `phone` E.164 válido                                            | `lib/whatsapp.ts`                 | FR-015, edge "telefone fora do padrão"          |
+| Forecast só de `status='open'`, `Σ value × probability/100`                    | `computeForecast` (único)         | FR-017, Princípio II                            |
+| Mudança de status de proposta move o deal                                      | `services/proposals`              | FR-012                                          |
 
 ---
 
 ## Transições de estado
 
 ### Deal — `stage_id` (fluxo do funil)
+
 ```
 Novo lead ─(qualificar)→ Qualificado ─→ Diagnóstico agendado ─(transcript)→ Diagnóstico realizado
    └ inbound (Calendly) entra direto em "Diagnóstico agendado"
 Diagnóstico realizado ─(proposta enviada)→ Proposta enviada ─→ Negociação ─→ {Ganho | Perdido | Stand-by}
 ```
+
 - Inbound (sincronizado) nasce em "Diagnóstico agendado"; outbound nasce em "Novo lead" e só passa a "Diagnóstico agendado" após "Qualificado" (Assumption do spec).
 - Proposta `enviada`/`aceita` empurra o deal para a etapa correspondente (FR-012).
 
 ### Deal — `status` (terminal)
+
 ```
 open ─→ won     (exige deal_type [+ mrr se recorrente])
 open ─→ lost    (exige lost_reason padronizado)
@@ -170,6 +193,7 @@ open ─→ standby (exige reaquecer_em)   ─(reaquecer)→ open
 ```
 
 ### Deal — `attendance`
+
 ```
 pendente ─(transcript chega)→ compareceu
 pendente ─(call passou sem transcript)→ no_show
@@ -177,8 +201,10 @@ pendente ─(reagendou)→ remarcado
 ```
 
 ### Proposal — `status`
+
 ```
 rascunho → enviada → vista → aceita
                           └─→ recusada
 ```
+
 - `valid_until < hoje` → estado visual "vencida" (destaque), sem mudar o enum.

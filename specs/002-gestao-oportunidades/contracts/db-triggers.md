@@ -10,12 +10,12 @@ Objeto de banco que materializa FR-015, FR-016, FR-018 e FR-020. Vive em `supaba
 
 ### Quando grava
 
-| Evento | Condição | Registro gerado |
-|---|---|---|
-| `INSERT` | sempre | abertura: `to_stage_id` = etapa inicial, `to_status` = `status` inicial, `from_*` nulos, `dwell_seconds` nulo |
-| `UPDATE` | `new.stage_id IS DISTINCT FROM old.stage_id` **ou** `new.status IS DISTINCT FROM old.status` | um registro com apenas os pares que mudaram preenchidos |
-| `UPDATE` | nenhuma das duas mudou (ex.: só `value`, `owner_id`, `next_action`) | **nenhum registro** — FR-019 limita o histórico a etapa e status |
-| `UPDATE` | etapa de destino igual à atual | nenhum registro — `IS DISTINCT FROM` já cobre o arraste que volta para a mesma coluna |
+| Evento   | Condição                                                                                     | Registro gerado                                                                                               |
+| -------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `INSERT` | sempre                                                                                       | abertura: `to_stage_id` = etapa inicial, `to_status` = `status` inicial, `from_*` nulos, `dwell_seconds` nulo |
+| `UPDATE` | `new.stage_id IS DISTINCT FROM old.stage_id` **ou** `new.status IS DISTINCT FROM old.status` | um registro com apenas os pares que mudaram preenchidos                                                       |
+| `UPDATE` | nenhuma das duas mudou (ex.: só `value`, `owner_id`, `next_action`)                          | **nenhum registro** — FR-019 limita o histórico a etapa e status                                              |
+| `UPDATE` | etapa de destino igual à atual                                                               | nenhum registro — `IS DISTINCT FROM` já cobre o arraste que volta para a mesma coluna                         |
 
 Uma transação que muda etapa **e** status produz **um único** registro com os quatro campos preenchidos.
 
@@ -66,29 +66,29 @@ Ordem obrigatória das operações:
 
 ## Verificação (executada no quickstart)
 
-| # | Cenário | Resultado esperado |
-|---|---|---|
-| 1 | `insert` de um deal | 1 linha em `deal_history` com `to_stage_id` preenchido e `dwell_seconds` nulo |
-| 2 | `update` mudando só `value` | nenhuma linha nova |
-| 3 | `update` mudando `stage_id` | 1 linha com `from_stage_id`/`to_stage_id` e `dwell_seconds` > 0 |
-| 4 | `update` mudando `stage_id` **e** `status` | 1 linha só, com os quatro campos |
-| 5 | `update` para a mesma etapa | nenhuma linha nova |
-| 6 | `insert`/`update`/`delete` direto em `deal_history` como usuário autenticado | recusado / 0 linhas afetadas |
-| 7 | mudança feita com service role | linha com `changed_by` nulo |
+| #   | Cenário                                                                      | Resultado esperado                                                            |
+| --- | ---------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| 1   | `insert` de um deal                                                          | 1 linha em `deal_history` com `to_stage_id` preenchido e `dwell_seconds` nulo |
+| 2   | `update` mudando só `value`                                                  | nenhuma linha nova                                                            |
+| 3   | `update` mudando `stage_id`                                                  | 1 linha com `from_stage_id`/`to_stage_id` e `dwell_seconds` > 0               |
+| 4   | `update` mudando `stage_id` **e** `status`                                   | 1 linha só, com os quatro campos                                              |
+| 5   | `update` para a mesma etapa                                                  | nenhuma linha nova                                                            |
+| 6   | `insert`/`update`/`delete` direto em `deal_history` como usuário autenticado | recusado / 0 linhas afetadas                                                  |
+| 7   | mudança feita com service role                                               | linha com `changed_by` nulo                                                   |
 
 ---
 
 ## Resultado da verificação (executada em 2026-08-14, banco real)
 
-| # | Cenário | Esperado | Observado |
-|---|---|---|---|
-| 1 | `insert` de um deal | 1 registro de abertura, `dwell_seconds` nulo | ✅ |
-| 2 | `update` mudando só `value` | nenhuma linha nova | ✅ |
-| 3 | `update` mudando `stage_id` | 1 linha com origem/destino | ✅ |
-| 4 | `update` mudando `stage_id` **e** `status` | 1 linha só, quatro campos | ✅ |
-| 5 | `update` para a mesma etapa | nenhuma linha nova | ✅ |
-| 6 | escrita direta em `deal_history` por usuário autenticado | recusada | ⚠️ verificado estruturalmente (só existe policy de `select`); a prova prática exige sessão de usuário |
-| 7 | mudança com service role | `changed_by` nulo → "Sistema" | ✅ |
+| #   | Cenário                                                  | Esperado                                     | Observado                                                                                             |
+| --- | -------------------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| 1   | `insert` de um deal                                      | 1 registro de abertura, `dwell_seconds` nulo | ✅                                                                                                    |
+| 2   | `update` mudando só `value`                              | nenhuma linha nova                           | ✅                                                                                                    |
+| 3   | `update` mudando `stage_id`                              | 1 linha com origem/destino                   | ✅                                                                                                    |
+| 4   | `update` mudando `stage_id` **e** `status`               | 1 linha só, quatro campos                    | ✅                                                                                                    |
+| 5   | `update` para a mesma etapa                              | nenhuma linha nova                           | ✅                                                                                                    |
+| 6   | escrita direta em `deal_history` por usuário autenticado | recusada                                     | ⚠️ verificado estruturalmente (só existe policy de `select`); a prova prática exige sessão de usuário |
+| 7   | mudança com service role                                 | `changed_by` nulo → "Sistema"                | ✅                                                                                                    |
 
 **Defeito encontrado e corrigido**: `created_at` usava `now()`, que devolve o instante da
 transação — várias gravações na mesma transação ficavam com timestamp idêntico e a linha do

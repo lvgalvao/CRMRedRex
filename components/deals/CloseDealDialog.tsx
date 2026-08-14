@@ -21,7 +21,7 @@ export function CloseDealDialog({ dealId, closeAction }: Props) {
       action={(fd) => closeAction(dealId, fd)}
       className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4"
     >
-      <h3 className="font-semibold">Fechar deal</h3>
+      <h3 className="font-semibold">Fechar oportunidade</h3>
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted-foreground">Resultado</span>

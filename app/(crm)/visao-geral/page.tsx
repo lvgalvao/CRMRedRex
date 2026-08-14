@@ -24,7 +24,14 @@ export default async function VisaoGeralPage() {
   ]);
 
   const kpis = [
-    { label: "Tarefas de hoje", value: String(deals.filter((d) => d.status === "open" && d.next_action_date && d.next_action_date <= todayISO()).length) },
+    {
+      label: "Tarefas de hoje",
+      value: String(
+        deals.filter(
+          (d) => d.status === "open" && d.next_action_date && d.next_action_date <= todayISO(),
+        ).length,
+      ),
+    },
     { label: "Valor ganho (mês)", value: formatBRL(data.wonValue) },
     { label: "Ticket médio", value: formatBRL(data.ticketMedio) },
     { label: "MRR novo", value: formatBRL(data.mrrNovo) },
@@ -55,7 +62,10 @@ export default async function VisaoGeralPage() {
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {kpis.map((k) => (
-          <div key={k.label} className="rounded-card border border-border bg-surface p-4 shadow-card">
+          <div
+            key={k.label}
+            className="rounded-card border border-border bg-surface p-4 shadow-card"
+          >
             <p className="text-xs text-muted-foreground">{k.label}</p>
             <p className="mt-1 text-xl font-heavy">{k.value}</p>
           </div>

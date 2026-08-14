@@ -43,9 +43,7 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
 
   const probabilidade = effectiveProbability(deal, stage);
   const previsaoVencida =
-    deal.status === "open" &&
-    deal.expected_close_date != null &&
-    deal.expected_close_date < today;
+    deal.status === "open" && deal.expected_close_date != null && deal.expected_close_date < today;
 
   const field = "rounded-md border border-border bg-background px-3 py-2 text-sm";
   const setOwner = setOwnerAction.bind(null, id);
@@ -70,7 +68,9 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
               <span className="ml-1 rounded-pill bg-muted px-2 py-0.5 text-[11px]">ajustado</span>
             ) : null}
           </span>
-          <span aria-hidden className="text-muted-foreground">·</span>
+          <span aria-hidden className="text-muted-foreground">
+            ·
+          </span>
           <span className={previsaoVencida ? "font-semibold text-danger" : "text-muted-foreground"}>
             Previsão:{" "}
             {deal.expected_close_date
@@ -90,7 +90,10 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
             changeStageAction={changeStageAction}
           />
 
-          <form action={setOwner} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+          <form
+            action={setOwner}
+            className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+          >
             <h3 className="font-semibold">Dono</h3>
             <select name="owner_id" defaultValue={deal.owner_id ?? ""} className={field}>
               <option value="">Sem dono</option>
@@ -100,10 +103,15 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
                 </option>
               ))}
             </select>
-            <button className="rounded-md border border-border px-3 py-1.5 text-sm">Salvar dono</button>
+            <button className="rounded-md border border-border px-3 py-1.5 text-sm">
+              Salvar dono
+            </button>
           </form>
 
-          <form action={setNext} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+          <form
+            action={setNext}
+            className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+          >
             <h3 className="font-semibold">Próxima ação</h3>
             <input
               name="next_action"
@@ -117,17 +125,24 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
               defaultValue={deal.next_action_date ?? ""}
               className={field}
             />
-            <button className="rounded-md border border-border px-3 py-1.5 text-sm">Salvar ação</button>
+            <button className="rounded-md border border-border px-3 py-1.5 text-sm">
+              Salvar ação
+            </button>
           </form>
 
           <CloseDealDialog dealId={id} closeAction={closeDealAction} />
         </div>
 
         <div className="flex flex-col gap-4">
-          <form action={addNoteB} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+          <form
+            action={addNoteB}
+            className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+          >
             <h3 className="font-semibold">Registrar nota</h3>
             <textarea name="content" rows={3} className={field} placeholder="O que aconteceu..." />
-            <button className="rounded-md border border-border px-3 py-1.5 text-sm">Adicionar à timeline</button>
+            <button className="rounded-md border border-border px-3 py-1.5 text-sm">
+              Adicionar à timeline
+            </button>
           </form>
 
           <div className="flex flex-col gap-2">

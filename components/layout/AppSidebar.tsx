@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   CalendarCheck,
   KanbanSquare,
+  Target,
   BarChart3,
   Users,
   BookOpen,
@@ -21,6 +22,7 @@ const MAIN: NavItem[] = [
   { href: "/visao-geral", label: "Visão geral", icon: LayoutDashboard },
   { href: "/hoje", label: "Hoje", icon: CalendarCheck },
   { href: "/pipeline", label: "Pipeline", icon: KanbanSquare },
+  { href: "/deals", label: "Oportunidades", icon: Target },
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
 ];
 

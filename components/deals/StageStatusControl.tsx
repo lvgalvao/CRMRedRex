@@ -14,12 +14,7 @@ type Props = {
 // Troca de etapa pela tela de detalhe — mesmo efeito do arraste no Kanban (FR-011).
 // Etapa terminal exige motivo/MRR/data: aqui só avisamos e direcionamos ao
 // "Fechar deal", que já coleta esses campos (ver contracts/internal-services.md).
-export function StageStatusControl({
-  dealId,
-  currentStageId,
-  stages,
-  changeStageAction,
-}: Props) {
+export function StageStatusControl({ dealId, currentStageId, stages, changeStageAction }: Props) {
   const [stageId, setStageId] = useState(currentStageId);
   const destino = stages.find((s) => s.id === stageId);
   const terminal = destino ? isTerminalStage(destino.name) : false;
@@ -46,8 +41,8 @@ export function StageStatusControl({
 
       {mudou && terminal ? (
         <p className="text-xs text-warning">
-          Etapa de fechamento. Prefira usar &quot;Fechar deal&quot; abaixo — lá o motivo da perda,
-          o MRR ou a data de reaquecimento são registrados.
+          Etapa de fechamento. Prefira usar &quot;Fechar oportunidade&quot; abaixo — lá o motivo da perda, o
+          MRR ou a data de reaquecimento são registrados.
         </p>
       ) : null}
 

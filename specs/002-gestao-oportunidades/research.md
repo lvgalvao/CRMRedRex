@@ -38,7 +38,7 @@ Nenhum `NEEDS CLARIFICATION` restou da spec (as três decisões de produto foram
 
 **Alternativas consideradas**: (a) update + insert sequenciais no serviço — viola FR-020; (b) função RPC `move_deal_stage()` chamada pelos serviços — resolve a atomicidade, mas exige alterar todos os call sites e não impede que um `updateDeal` genérico burle o histórico; (c) `activities` com novo `type` — ver D4.
 
-**Concessão registrada**: fere parcialmente o Princípio II (regra de negócio nos serviços). Mitigação: o trigger é *mecânica de persistência*, não decisão — não valida transição, não escolhe etapa, não bloqueia nada. Toda decisão (pode reabrir? exige motivo? qual etapa terminal?) permanece em `lib/services/`. Está documentado em Complexity Tracking no `plan.md`.
+**Concessão registrada**: fere parcialmente o Princípio II (regra de negócio nos serviços). Mitigação: o trigger é _mecânica de persistência_, não decisão — não valida transição, não escolhe etapa, não bloqueia nada. Toda decisão (pode reabrir? exige motivo? qual etapa terminal?) permanece em `lib/services/`. Está documentado em Complexity Tracking no `plan.md`.
 
 **Autor da mudança**: `changed_by = auth.uid()` resolvido dentro do trigger, com verificação de existência em `profiles`. Chamadas com `service role` (Cron do Calendly, webhook do tl;dv) têm `auth.uid()` nulo e o registro fica com autor `null`, exibido como **Sistema** na interface.
 

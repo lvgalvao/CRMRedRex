@@ -38,9 +38,19 @@ export async function insertProposal(db: DB, input: Partial<Proposal>): Promise<
 export async function updateProposal(
   db: DB,
   id: string,
-  patch: { status?: ProposalStatus; value?: number; valid_until?: string | null; doc_url?: string | null },
+  patch: {
+    status?: ProposalStatus;
+    value?: number;
+    valid_until?: string | null;
+    doc_url?: string | null;
+  },
 ): Promise<Proposal> {
-  const { data, error } = await db.from("proposals").update(patch).eq("id", id).select("*").single();
+  const { data, error } = await db
+    .from("proposals")
+    .update(patch)
+    .eq("id", id)
+    .select("*")
+    .single();
   if (error) throw error;
   return data;
 }

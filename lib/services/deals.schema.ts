@@ -47,9 +47,9 @@ export const createDealSchema = z.object({
   contact_id: uuid("o contato"),
   stage_id: uuid("a etapa"),
   value: valor,
-  probability: probabilidade,          // ausente/null = herda a etapa (FR-008)
+  probability: probabilidade, // ausente/null = herda a etapa (FR-008)
   owner_id: z.preprocess(vazioParaIndefinido, z.string().uuid().nullish()),
-  expected_close_date: data,           // passado é permitido (FR-007, D8)
+  expected_close_date: data, // passado é permitido (FR-007, D8)
   next_action: texto,
   next_action_date: data,
 });

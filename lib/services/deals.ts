@@ -1,9 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth";
-import {
-  insertDeal as repoInsertDeal,
-  updateDeal as repoUpdateDeal,
-} from "@/lib/supabase/deals";
+import { insertDeal as repoInsertDeal, updateDeal as repoUpdateDeal } from "@/lib/supabase/deals";
 import { getContact } from "@/lib/supabase/contacts";
 import { getDeal } from "@/lib/supabase/deals";
 import { listStages } from "@/lib/supabase/stages";

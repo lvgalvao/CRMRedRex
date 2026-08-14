@@ -2,7 +2,7 @@
 
 import { useActionState, useMemo, useState } from "react";
 import Link from "next/link";
-import type { Company, Contact, Profile, Stage } from "@/lib/supabase/types";
+import type { Company, Contact, Deal, Profile, Stage } from "@/lib/supabase/types";
 import type { DealFormState } from "@/app/(crm)/deals/actions";
 
 type Props = {
@@ -13,6 +13,8 @@ type Props = {
   currentProfileId: string | null;
   action: (prev: DealFormState, formData: FormData) => Promise<DealFormState>;
   submitLabel?: string;
+  /** Valores atuais quando o formulário está em modo edição. */
+  deal?: Deal;
 };
 
 const field = "rounded-md border border-border bg-background px-3 py-2 text-sm";
@@ -31,10 +33,11 @@ export function DealForm({
   currentProfileId,
   action,
   submitLabel = "Criar oportunidade",
+  deal,
 }: Props) {
   const [state, formAction, pending] = useActionState<DealFormState, FormData>(action, {});
-  const [companyId, setCompanyId] = useState("");
-  const [stageId, setStageId] = useState(stages[0]?.id ?? "");
+  const [companyId, setCompanyId] = useState(deal?.company_id ?? "");
+  const [stageId, setStageId] = useState(deal?.stage_id ?? stages[0]?.id ?? "");
 
   // Contatos do cliente selecionado (FR-003). Sem cliente escolhido, nenhum contato.
   const contatosDoCliente = useMemo(
@@ -62,6 +65,7 @@ export function DealForm({
           <input
             id="title"
             name="title"
+            defaultValue={deal?.title ?? ""}
             placeholder="Ex.: Plataforma de dados — ACME"
             className={field}
           />
@@ -93,7 +97,13 @@ export function DealForm({
           <label className={label} htmlFor="contact_id">
             Contato *
           </label>
-          <select id="contact_id" name="contact_id" className={field} disabled={!companyId}>
+          <select
+            id="contact_id"
+            name="contact_id"
+            defaultValue={deal?.contact_id ?? ""}
+            className={field}
+            disabled={!companyId}
+          >
             <option value="">
               {companyId ? "Selecione o contato" : "Escolha o cliente primeiro"}
             </option>
@@ -123,6 +133,7 @@ export function DealForm({
             name="stage_id"
             value={stageId}
             onChange={(e) => setStageId(e.target.value)}
+            disabled={Boolean(deal)}
             className={field}
           >
             {stages.map((s) => (
@@ -131,6 +142,11 @@ export function DealForm({
               </option>
             ))}
           </select>
+          {deal ? (
+            <span className="text-xs text-muted-foreground">
+              A etapa é alterada na tela da oportunidade, para registrar o histórico.
+            </span>
+          ) : null}
           <Erro msg={state.errors?.stage_id} />
         </div>
 
@@ -141,7 +157,7 @@ export function DealForm({
           <select
             id="owner_id"
             name="owner_id"
-            defaultValue={currentProfileId ?? ""}
+            defaultValue={deal?.owner_id ?? currentProfileId ?? ""}
             className={field}
           >
             <option value="">Eu mesmo</option>
@@ -164,6 +180,7 @@ export function DealForm({
             type="number"
             step="0.01"
             min="0"
+            defaultValue={deal?.value ?? ""}
             placeholder="0,00"
             className={field}
           />
@@ -180,6 +197,7 @@ export function DealForm({
             type="number"
             min="0"
             max="100"
+            defaultValue={deal?.probability ?? ""}
             placeholder={`${probabilidadeDaEtapa} (da etapa)`}
             className={field}
           />
@@ -193,7 +211,13 @@ export function DealForm({
           <label className={label} htmlFor="expected_close_date">
             Previsão de fechamento
           </label>
-          <input id="expected_close_date" name="expected_close_date" type="date" className={field} />
+          <input
+            id="expected_close_date"
+            name="expected_close_date"
+            type="date"
+            defaultValue={deal?.expected_close_date ?? ""}
+            className={field}
+          />
           <Erro msg={state.errors?.expected_close_date} />
         </div>
 
@@ -204,6 +228,7 @@ export function DealForm({
           <input
             id="next_action"
             name="next_action"
+            defaultValue={deal?.next_action ?? ""}
             placeholder="Ex.: Ligar para confirmar diagnóstico"
             className={field}
           />
@@ -214,7 +239,13 @@ export function DealForm({
           <label className={label} htmlFor="next_action_date">
             Data da próxima ação
           </label>
-          <input id="next_action_date" name="next_action_date" type="date" className={field} />
+          <input
+            id="next_action_date"
+            name="next_action_date"
+            type="date"
+            defaultValue={deal?.next_action_date ?? ""}
+            className={field}
+          />
           <Erro msg={state.errors?.next_action_date} />
         </div>
       </div>
@@ -227,7 +258,10 @@ export function DealForm({
         >
           {pending ? "Salvando..." : submitLabel}
         </button>
-        <Link href="/pipeline" className="text-sm text-muted-foreground hover:underline">
+        <Link
+          href={deal ? `/deals/${deal.id}` : "/pipeline"}
+          className="text-sm text-muted-foreground hover:underline"
+        >
           Cancelar
         </Link>
       </div>

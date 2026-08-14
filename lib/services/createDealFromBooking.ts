@@ -49,7 +49,9 @@ export async function createDealFromBooking(
   // find-or-create empresa (opcional).
   let companyId: string | null = null;
   if (b.companyName) {
-    const company = (await findCompanyByName(db, b.companyName)) ?? (await createCompany(db, { name: b.companyName }));
+    const company =
+      (await findCompanyByName(db, b.companyName)) ??
+      (await createCompany(db, { name: b.companyName }));
     companyId = company.id;
   }
 

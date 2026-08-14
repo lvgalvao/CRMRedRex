@@ -3,7 +3,7 @@
 Feature: CRM Comercial da RedRex — MVP (`001-crm-mvp-comercial`)
 Data: 2026-05-29
 
-A stack-alvo já está fixada pelo PRD (Parte 2) e pela Constituição (seção "Restrições de Stack"), então não há `NEEDS CLARIFICATION` aberto. Este documento registra as decisões de implementação — o *como* dentro da stack imposta — e as alternativas descartadas.
+A stack-alvo já está fixada pelo PRD (Parte 2) e pela Constituição (seção "Restrições de Stack"), então não há `NEEDS CLARIFICATION` aberto. Este documento registra as decisões de implementação — o _como_ dentro da stack imposta — e as alternativas descartadas.
 
 ---
 
@@ -33,7 +33,7 @@ A stack-alvo já está fixada pelo PRD (Parte 2) e pela Constituição (seção 
 
 ## D5. Disparo do polling (Cron + manual) e proteção da rota
 
-- **Decisão**: Vercel Cron (intervalo 5–15 min, via `vercel.json`) chama a rota com header `Authorization: Bearer ${CRON_SECRET}`; o botão *Atualizar* chama a mesma rota com a sessão Supabase do usuário. A rota aceita **um dos dois**: sessão autenticada **ou** `CRON_SECRET` válido. Processamento do lote é async (responde 2xx rápido).
+- **Decisão**: Vercel Cron (intervalo 5–15 min, via `vercel.json`) chama a rota com header `Authorization: Bearer ${CRON_SECRET}`; o botão _Atualizar_ chama a mesma rota com a sessão Supabase do usuário. A rota aceita **um dos dois**: sessão autenticada **ou** `CRON_SECRET` válido. Processamento do lote é async (responde 2xx rápido).
 - **Rationale**: Parte 3 do PRD; cobre disparo automático e manual com uma rota só.
 - **Alternativas descartadas**: rota pública (inseguro); cron próprio fora da Vercel (infra extra desnecessária no MVP).
 

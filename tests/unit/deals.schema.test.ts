@@ -75,7 +75,9 @@ describe("createDealSchema — previsão de fechamento (FR-007)", () => {
   });
 
   it("aceita ausência de previsão", () => {
-    expect(parseCreateDeal({ ...base, expected_close_date: "" }).expected_close_date).toBeUndefined();
+    expect(
+      parseCreateDeal({ ...base, expected_close_date: "" }).expected_close_date,
+    ).toBeUndefined();
   });
 
   it("recusa data em formato inválido", () => {

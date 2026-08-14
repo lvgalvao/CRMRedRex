@@ -19,6 +19,19 @@ export type Forecast = {
   };
 };
 
+/**
+ * Valor ponderado de UMA oportunidade — a menor unidade da regra de forecast.
+ * Fechadas valem 0 no ponderado (FR-013). Vive aqui para que a fórmula não se
+ * espalhe: qualquer tela que precise do ponderado importa desta função.
+ */
+export function weightedValue(
+  deal: Pick<Deal, "value" | "probability" | "status">,
+  stage: Pick<Stage, "probability"> | null | undefined,
+): number {
+  if (deal.status !== "open") return 0;
+  return (deal.value ?? 0) * (effectiveProbability(deal, stage) / 100);
+}
+
 function pct(weighted: number, target: number): number {
   return target > 0 ? Math.round((weighted / target) * 1000) / 10 : 0;
 }
@@ -43,9 +56,8 @@ export function computeForecastFromData(
 
   for (const d of open) {
     const stage = stageById.get(d.stage_id);
-    const prob = effectiveProbability(d, stage) / 100;
     const value = d.value ?? 0;
-    const weighted = value * prob;
+    const weighted = weightedValue(d, stage);
 
     totalWeighted += weighted;
     totalGross += value;

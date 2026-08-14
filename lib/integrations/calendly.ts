@@ -88,7 +88,11 @@ export async function getInvitee(inviteesUri: string): Promise<Invitee | null> {
   const res = await fetch(inviteesUri, { headers: { Authorization: `Bearer ${token}` } });
   if (!res.ok) throw new Error(`Calendly invitees ${res.status}`);
   const json = (await res.json()) as {
-    collection: { email?: string; name?: string; questions_and_answers?: { question: string; answer: string }[] }[];
+    collection: {
+      email?: string;
+      name?: string;
+      questions_and_answers?: { question: string; answer: string }[];
+    }[];
   };
   const first = json.collection?.[0];
   if (!first?.email) return null;

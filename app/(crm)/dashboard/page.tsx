@@ -57,7 +57,10 @@ export default async function DashboardPage() {
       </div>
 
       {isGestor ? (
-        <form action={setGoalAction} className="flex flex-wrap items-end gap-2 rounded-card border border-border bg-surface p-4">
+        <form
+          action={setGoalAction}
+          className="flex flex-wrap items-end gap-2 rounded-card border border-border bg-surface p-4"
+        >
           <h3 className="w-full font-semibold">Cadastrar meta do mês</h3>
           <label className="flex flex-col gap-1 text-xs">
             Mês
@@ -76,7 +79,14 @@ export default async function DashboardPage() {
           </label>
           <label className="flex flex-col gap-1 text-xs">
             Meta (R$)
-            <input name="target_value" type="number" step="0.01" min="0" required className={field} />
+            <input
+              name="target_value"
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              className={field}
+            />
           </label>
           <button className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
             Salvar meta

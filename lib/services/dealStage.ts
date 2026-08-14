@@ -47,10 +47,7 @@ export function effectiveProbability(
  * - etapa ativa     -> reabre o deal fechado, limpando motivo de perda e reaquecimento
  * - nada a mudar    -> objeto vazio
  */
-export function transitionForStage(
-  currentStatus: DealStatus,
-  stageName: string,
-): Partial<Deal> {
+export function transitionForStage(currentStatus: DealStatus, stageName: string): Partial<Deal> {
   const target = statusForStage(stageName);
 
   if (target !== "open") {
