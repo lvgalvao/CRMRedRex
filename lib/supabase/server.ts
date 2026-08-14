@@ -1,10 +1,12 @@
+import { cache } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { publicEnv } from "@/lib/env";
 import type { Database } from "@/lib/supabase/types";
 
 // Client de servidor (Server Components / route handlers). Lê e renova a sessão por cookies.
-export async function createClient() {
+// cache(): um único client por request, em vez de um novo a cada chamada de serviço.
+export const createClient = cache(async () => {
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
@@ -27,4 +29,4 @@ export async function createClient() {
       },
     },
   );
-}
+});

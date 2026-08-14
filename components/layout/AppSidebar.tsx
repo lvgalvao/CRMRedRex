@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -10,6 +10,7 @@ import {
   Users,
   BookOpen,
   LogOut,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/supabase/types";
@@ -28,20 +29,38 @@ const CADASTROS: NavItem[] = [
   { href: "/playbooks", label: "Playbooks", icon: BookOpen },
 ];
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+/** Conteúdo do link: troca o ícone por um spinner enquanto a navegação está pendente.
+ *  Precisa ser filho do <Link> — é assim que useLinkStatus lê o estado. */
+function NavLinkContent({ item }: { item: NavItem }) {
+  const { pending } = useLinkStatus();
   const Icon = item.icon;
+  return (
+    <>
+      {pending ? (
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+      ) : (
+        <Icon className="h-4 w-4 shrink-0" aria-hidden />
+      )}
+      <span>{item.label}</span>
+      {pending && <span className="sr-only">Carregando…</span>}
+    </>
+  );
+}
+
+function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <Link
       href={item.href}
+      prefetch
       className={cn(
         "flex items-center gap-3 rounded-pill px-3 py-2 text-sm transition",
+        "active:scale-[0.98]",
         active
           ? "bg-primary text-primary-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
     >
-      <Icon className="h-4 w-4" />
-      {item.label}
+      <NavLinkContent item={item} />
     </Link>
   );
 }

@@ -6,7 +6,6 @@ import { listDeals } from "@/lib/supabase/deals";
 import { ForecastVsGoal } from "@/components/dashboard/ForecastVsGoal";
 import { WinRateGauge } from "@/components/dashboard/WinRateGauge";
 import { KanbanBoard } from "@/components/pipeline/KanbanBoard";
-import { SyncButton } from "@/components/pipeline/SyncButton";
 import { formatBRL, todayISO } from "@/lib/utils";
 import { moveDealAction } from "@/app/(crm)/pipeline/actions";
 
@@ -40,7 +39,6 @@ export default async function VisaoGeralPage() {
             Olá, {profile?.name}. Forecast do mês e seu funil em um só lugar.
           </p>
         </div>
-        <SyncButton />
       </div>
 
       {/* Faixa executiva: forecast × meta + gauge + KPIs */}

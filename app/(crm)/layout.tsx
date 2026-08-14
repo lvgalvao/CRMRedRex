@@ -6,11 +6,10 @@ import { logout } from "@/app/(auth)/login/actions";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 
 export default async function CrmLayout({ children }: { children: React.ReactNode }) {
-  const profile = await getCurrentProfile();
-  if (!profile) redirect("/login");
-
+  // Paralelo: antes eram 3 idas ao Supabase em série (getUser -> getProfile -> listProfiles).
   const db = await createClient();
-  const members = await listProfiles(db);
+  const [profile, members] = await Promise.all([getCurrentProfile(), listProfiles(db)]);
+  if (!profile) redirect("/login");
 
   return (
     <div className="flex min-h-screen">

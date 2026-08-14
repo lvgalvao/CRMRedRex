@@ -26,9 +26,11 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     },
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // getClaims() valida a assinatura do JWT localmente (JWKS ES256) em vez de
+  // fazer um round-trip ao Supabase Auth a cada request — o middleware roda em
+  // TODA navegação, então isso sozinho tirava ~250ms de cada clique.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const user = claimsData?.claims?.sub ? claimsData.claims : null;
 
   const path = request.nextUrl.pathname;
   const isAuthRoute = path.startsWith("/login");
