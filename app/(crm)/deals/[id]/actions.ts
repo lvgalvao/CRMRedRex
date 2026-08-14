@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { setNextAction, editDeal } from "@/lib/services/deals";
+import { setNextAction, editDeal, moveDeal } from "@/lib/services/deals";
 import { addNote } from "@/lib/services/activities";
 import { closeDeal } from "@/lib/services/closeDeal";
 import { createProposalVersion, updateProposalStatus } from "@/lib/services/proposals";
@@ -25,6 +25,15 @@ export async function setNextActionAction(dealId: string, formData: FormData) {
 export async function setOwnerAction(dealId: string, formData: FormData) {
   const ownerId = String(formData.get("owner_id") ?? "") || null;
   await editDeal(dealId, { owner_id: ownerId });
+  revalidate(dealId);
+}
+
+export async function changeStageAction(dealId: string, formData: FormData) {
+  const stageId = String(formData.get("stage_id") ?? "").trim();
+  if (!stageId) return;
+  // position 0: entra no topo da coluna de destino. O histórico é gravado pelo
+  // trigger, na mesma transação do update (FR-020).
+  await moveDeal(dealId, stageId, 0);
   revalidate(dealId);
 }
 

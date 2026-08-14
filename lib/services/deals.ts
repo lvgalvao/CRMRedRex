@@ -5,6 +5,9 @@ import {
   updateDeal as repoUpdateDeal,
 } from "@/lib/supabase/deals";
 import { getContact } from "@/lib/supabase/contacts";
+import { getDeal } from "@/lib/supabase/deals";
+import { listStages } from "@/lib/supabase/stages";
+import { transitionForStage } from "./dealStage";
 import { parseCreateDeal, parseEditDeal } from "./deals.schema";
 import type { Deal } from "@/lib/supabase/types";
 
@@ -75,10 +78,33 @@ export async function editDeal(dealId: string, patch: unknown): Promise<Deal> {
   return repoUpdateDeal(db, dealId, campos as Partial<Deal>);
 }
 
-/** Move o deal entre etapas, persistindo stage_id + position (Kanban). */
+/**
+ * Move a Oportunidade entre etapas (FR-011, FR-012, FR-014).
+ * - mesma etapa: no-op, para não poluir o histórico com ruído de drag-and-drop
+ * - etapa terminal: aplica o status correspondente (Ganho/Perdido/Stand-by)
+ * - etapa ativa com deal fechado: reabre, limpando motivo de perda e reaquecimento
+ *
+ * Etapa, posição e status vão no MESMO update: o trigger deals_log_change grava
+ * um único registro de histórico, na mesma transação (FR-020).
+ */
 export async function moveDeal(dealId: string, stageId: string, position: number): Promise<Deal> {
   const db = await createClient();
-  return repoUpdateDeal(db, dealId, { stage_id: stageId, position });
+
+  const deal = await getDeal(db, dealId);
+  if (!deal) throw new Error("Oportunidade não encontrada.");
+  if (deal.stage_id === stageId) return deal;
+
+  const stages = await listStages(db);
+  const destino = stages.find((s) => s.id === stageId);
+  if (!destino) throw new Error("Etapa não encontrada.");
+
+  const patchDeStatus = transitionForStage(deal.status, destino.name);
+
+  return repoUpdateDeal(db, dealId, {
+    stage_id: stageId,
+    position,
+    ...patchDeStatus,
+  });
 }
 
 /** Define a próxima ação e a data (alimenta a tela "Hoje"). */

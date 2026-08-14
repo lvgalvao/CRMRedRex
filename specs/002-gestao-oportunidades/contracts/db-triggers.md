@@ -75,3 +75,25 @@ Ordem obrigatória das operações:
 | 5 | `update` para a mesma etapa | nenhuma linha nova |
 | 6 | `insert`/`update`/`delete` direto em `deal_history` como usuário autenticado | recusado / 0 linhas afetadas |
 | 7 | mudança feita com service role | linha com `changed_by` nulo |
+
+---
+
+## Resultado da verificação (executada em 2026-08-14, banco real)
+
+| # | Cenário | Esperado | Observado |
+|---|---|---|---|
+| 1 | `insert` de um deal | 1 registro de abertura, `dwell_seconds` nulo | ✅ |
+| 2 | `update` mudando só `value` | nenhuma linha nova | ✅ |
+| 3 | `update` mudando `stage_id` | 1 linha com origem/destino | ✅ |
+| 4 | `update` mudando `stage_id` **e** `status` | 1 linha só, quatro campos | ✅ |
+| 5 | `update` para a mesma etapa | nenhuma linha nova | ✅ |
+| 6 | escrita direta em `deal_history` por usuário autenticado | recusada | ⚠️ verificado estruturalmente (só existe policy de `select`); a prova prática exige sessão de usuário |
+| 7 | mudança com service role | `changed_by` nulo → "Sistema" | ✅ |
+
+**Defeito encontrado e corrigido**: `created_at` usava `now()`, que devolve o instante da
+transação — várias gravações na mesma transação ficavam com timestamp idêntico e a linha do
+tempo saía invertida. Corrigido na migration `0003` com `clock_timestamp()`. Reverificado: a
+ordem cronológica decrescente passou a sair correta (fechamento no topo, abertura no fim).
+
+**Nota sobre `dwell_seconds`**: transições instantâneas gravam 0 (piso da função). O contrato
+esperava "> 0" no caso 3 assumindo tempo real decorrido — não é defeito.
