@@ -68,6 +68,9 @@ export async function createDealFromBooking(
 
   const deal = await insertDeal(db, {
     contact_id: contact.id,
+    // Cliente explícito no deal (002/FR-003): usa a empresa resolvida acima e,
+    // na falta dela, herda a do contato — sem isso a oportunidade nasce sem cliente.
+    company_id: companyId ?? contact.company_id ?? null,
     stage_id: stage.id,
     owner_id: ownerId,
     title: `Diagnóstico — ${b.inviteeName}`,

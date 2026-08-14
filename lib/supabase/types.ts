@@ -69,10 +69,13 @@ export type Stage = {
 export type Deal = {
   id: string;
   contact_id: string;
+  company_id: string | null;          // 0002 — cliente explícito (herdado do contato quando ausente)
   stage_id: string;
   owner_id: string | null;
   title: string;
   value: number | null;
+  probability: number | null;         // 0002 — null = herda stages.probability
+  expected_close_date: string | null; // 0002 — previsão de fechamento
   deal_type: DealType;
   mrr: number | null;
   position: number;
@@ -85,6 +88,18 @@ export type Deal = {
   calendly_event_uid: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export type DealHistory = {
+  id: string;
+  deal_id: string;
+  changed_by: string | null;          // null = Sistema (cron/webhook com service role)
+  from_stage_id: string | null;
+  to_stage_id: string | null;
+  from_status: DealStatus | null;
+  to_status: DealStatus | null;
+  dwell_seconds: number | null;       // tempo desde a mudança anterior
+  created_at: string;
 }
 
 export type Proposal = {
@@ -149,6 +164,7 @@ export type Database = {
       contacts: TableShape<Contact>;
       stages: TableShape<Stage>;
       deals: TableShape<Deal>;
+      deal_history: TableShape<DealHistory>;
       proposals: TableShape<Proposal>;
       templates: TableShape<Template>;
       goals: TableShape<Goal>;

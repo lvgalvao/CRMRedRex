@@ -8,10 +8,13 @@ function deal(over: Partial<DealWithContact>): DealWithContact {
   return {
     id: "d",
     contact_id: "c",
+    company_id: null,
     stage_id: "s",
     owner_id: "u1",
     title: "Deal",
     value: 0,
+    probability: null,
+    expected_close_date: null,
     deal_type: "pontual",
     mrr: 0,
     position: 0,

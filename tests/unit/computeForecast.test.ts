@@ -12,10 +12,13 @@ function d(o: Partial<Deal>): Deal {
   return {
     id: Math.random().toString(),
     contact_id: "c",
+    company_id: null,
     stage_id: "s1",
     owner_id: "u1",
     title: "x",
     value: 1000,
+    probability: null,
+    expected_close_date: null,
     deal_type: "pontual",
     mrr: 0,
     position: 0,
@@ -72,5 +75,63 @@ describe("computeForecast (FR-017/FR-018, SC-003)", () => {
     expect(f.byStage.find((s) => s.stageId === "s1")?.weighted).toBe(600);
     expect(f.byStage.find((s) => s.stageId === "s2")?.weighted).toBe(1600);
     expect(f.vsGoal.perOwner.find((o) => o.ownerId === "u2")?.attainmentPct).toBe(200);
+  });
+});
+
+// --- 002: probabilidade efetiva por oportunidade (FR-008a, FR-008b, SC-008) ---
+describe("forecast com probabilidade ajustada (FR-008a)", () => {
+  it("usa a probabilidade da etapa quando o deal não tem ajuste manual", () => {
+    const f = computeForecastFromData(
+      [d({ stage_id: "s1", value: 1000, probability: null })],
+      stages,
+      [],
+      "2026-08-01",
+    );
+    expect(f.total.weighted).toBe(600); // 1000 × 60%
+  });
+
+  it("o ajuste manual do deal prevalece sobre a etapa", () => {
+    const f = computeForecastFromData(
+      [d({ stage_id: "s1", value: 1000, probability: 25 })],
+      stages,
+      [],
+      "2026-08-01",
+    );
+    expect(f.total.weighted).toBe(250); // 1000 × 25%, não 60%
+  });
+
+  it("ajuste de 0% zera o ponderado sem zerar o bruto", () => {
+    const f = computeForecastFromData(
+      [d({ stage_id: "s2", value: 5000, probability: 0 })],
+      stages,
+      [],
+      "2026-08-01",
+    );
+    expect(f.total.weighted).toBe(0);
+    expect(f.total.gross).toBe(5000);
+  });
+
+  it("mistura deals herdados e ajustados no mesmo total", () => {
+    const f = computeForecastFromData(
+      [
+        d({ stage_id: "s1", value: 1000, probability: null }), // 600
+        d({ stage_id: "s2", value: 1000, probability: 50 }),   // 500
+      ],
+      stages,
+      [],
+      "2026-08-01",
+    );
+    expect(f.total.weighted).toBe(1100);
+  });
+
+  it("deal fechado fica fora do ponderado mesmo com probabilidade ajustada (FR-013)", () => {
+    const f = computeForecastFromData(
+      [d({ stage_id: "s1", value: 1000, probability: 90, status: "won" })],
+      stages,
+      [],
+      "2026-08-01",
+    );
+    expect(f.total.weighted).toBe(0);
+    expect(f.total.gross).toBe(0);
   });
 });

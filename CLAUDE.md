@@ -66,6 +66,7 @@ Comandos (definidos em `package.json`): `npm run dev` (servidor local), `npm run
 <!-- SPECKIT START -->
 ## Feature ativa
 
-- **001-crm-mvp-comercial** — plano de implementação: `specs/001-crm-mvp-comercial/plan.md` (spec, research, data-model, contracts e quickstart na mesma pasta).
+- **002-gestao-oportunidades** — plano de implementação: `specs/002-gestao-oportunidades/plan.md` (spec, research, data-model, contracts e quickstart na mesma pasta). Cadastro e gestão manual de Oportunidades: estende `deals` com `company_id`, `expected_close_date` e `probability` (`null` = herda a etapa), cria `deal_history` gravado por trigger e as telas de criar/editar/listar. **Não** cria entidade nova — no banco continua `deals`, na interface o rótulo é "Oportunidade".
+- **001-crm-mvp-comercial** (entregue) — `specs/001-crm-mvp-comercial/plan.md`.
 <!-- SPECKIT END -->
 
