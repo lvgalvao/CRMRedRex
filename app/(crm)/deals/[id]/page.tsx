@@ -5,15 +5,20 @@ import { getDeal } from "@/lib/supabase/deals";
 import { listStages } from "@/lib/supabase/stages";
 import { listProfiles } from "@/lib/supabase/profiles";
 import { listActivitiesByDeal } from "@/lib/supabase/activities";
+import { listHistoryByDeal } from "@/lib/supabase/dealHistory";
 import { listProposalsByDeal } from "@/lib/supabase/proposals";
 import { ActivityTimeline } from "@/components/contacts/ActivityTimeline";
 import { CloseDealDialog } from "@/components/deals/CloseDealDialog";
+import { StageStatusControl } from "@/components/deals/StageStatusControl";
+import { DealHistory } from "@/components/deals/DealHistory";
 import { ProposalForm } from "@/components/deals/ProposalForm";
 import { ProposalList } from "@/components/deals/ProposalList";
 import { formatBRL, todayISO } from "@/lib/utils";
+import { effectiveProbability } from "@/lib/services/dealStage";
 import {
   setNextActionAction,
   setOwnerAction,
+  changeStageAction,
   addNoteAction,
   closeDealAction,
   createProposalAction,
@@ -26,14 +31,19 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
   const deal = await getDeal(db, id);
   if (!deal) notFound();
 
-  const [stages, profiles, activities, proposals] = await Promise.all([
+  const [stages, profiles, activities, proposals, history] = await Promise.all([
     listStages(db),
     listProfiles(db),
     listActivitiesByDeal(db, id),
     listProposalsByDeal(db, id),
+    listHistoryByDeal(db, id),
   ]);
   const stage = stages.find((s) => s.id === deal.stage_id);
   const today = todayISO();
+
+  const probabilidade = effectiveProbability(deal, stage);
+  const previsaoVencida =
+    deal.status === "open" && deal.expected_close_date != null && deal.expected_close_date < today;
 
   const field = "rounded-md border border-border bg-background px-3 py-2 text-sm";
   const setOwner = setOwnerAction.bind(null, id);
@@ -51,11 +61,39 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
           {deal.contact?.name ?? "—"} · {formatBRL(deal.value)} · {stage?.name ?? "—"} ·{" "}
           {deal.status}
         </p>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 text-sm">
+          <span className="text-muted-foreground">
+            Probabilidade: <strong className="text-foreground">{probabilidade}%</strong>
+            {deal.probability != null ? (
+              <span className="ml-1 rounded-pill bg-muted px-2 py-0.5 text-[11px]">ajustado</span>
+            ) : null}
+          </span>
+          <span aria-hidden className="text-muted-foreground">
+            ·
+          </span>
+          <span className={previsaoVencida ? "font-semibold text-danger" : "text-muted-foreground"}>
+            Previsão:{" "}
+            {deal.expected_close_date
+              ? new Date(`${deal.expected_close_date}T00:00:00`).toLocaleDateString("pt-BR")
+              : "—"}
+            {previsaoVencida ? " (vencida)" : ""}
+          </span>
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-4">
-          <form action={setOwner} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+          <StageStatusControl
+            dealId={id}
+            currentStageId={deal.stage_id}
+            stages={stages}
+            changeStageAction={changeStageAction}
+          />
+
+          <form
+            action={setOwner}
+            className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+          >
             <h3 className="font-semibold">Dono</h3>
             <select name="owner_id" defaultValue={deal.owner_id ?? ""} className={field}>
               <option value="">Sem dono</option>
@@ -65,10 +103,15 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
                 </option>
               ))}
             </select>
-            <button className="rounded-md border border-border px-3 py-1.5 text-sm">Salvar dono</button>
+            <button className="rounded-md border border-border px-3 py-1.5 text-sm">
+              Salvar dono
+            </button>
           </form>
 
-          <form action={setNext} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+          <form
+            action={setNext}
+            className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+          >
             <h3 className="font-semibold">Próxima ação</h3>
             <input
               name="next_action"
@@ -82,17 +125,24 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
               defaultValue={deal.next_action_date ?? ""}
               className={field}
             />
-            <button className="rounded-md border border-border px-3 py-1.5 text-sm">Salvar ação</button>
+            <button className="rounded-md border border-border px-3 py-1.5 text-sm">
+              Salvar ação
+            </button>
           </form>
 
           <CloseDealDialog dealId={id} closeAction={closeDealAction} />
         </div>
 
         <div className="flex flex-col gap-4">
-          <form action={addNoteB} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+          <form
+            action={addNoteB}
+            className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+          >
             <h3 className="font-semibold">Registrar nota</h3>
             <textarea name="content" rows={3} className={field} placeholder="O que aconteceu..." />
-            <button className="rounded-md border border-border px-3 py-1.5 text-sm">Adicionar à timeline</button>
+            <button className="rounded-md border border-border px-3 py-1.5 text-sm">
+              Adicionar à timeline
+            </button>
           </form>
 
           <div className="flex flex-col gap-2">
@@ -108,6 +158,11 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
           <div>
             <h3 className="mb-2 font-semibold">Timeline</h3>
             <ActivityTimeline activities={activities} />
+          </div>
+
+          <div>
+            <h3 className="mb-2 font-semibold">Histórico de etapa e status</h3>
+            <DealHistory entries={history} />
           </div>
         </div>
       </div>

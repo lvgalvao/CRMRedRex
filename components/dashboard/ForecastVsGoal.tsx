@@ -18,15 +18,16 @@ export function ForecastVsGoal({
           <p className="text-xs text-muted-foreground">Forecast ponderado × meta do mês</p>
           <p className="text-2xl font-heavy text-foreground">
             {formatBRL(weighted)}{" "}
-            <span className="text-sm font-normal text-muted-foreground">
-              / {formatBRL(target)}
-            </span>
+            <span className="text-sm font-normal text-muted-foreground">/ {formatBRL(target)}</span>
           </p>
         </div>
         <span className="text-2xl font-heavy text-primary">{attainmentPct}%</span>
       </div>
       <div className="h-3 w-full overflow-hidden rounded-pill bg-muted">
-        <div className="h-full rounded-pill bg-primary transition-all" style={{ width: `${width}%` }} />
+        <div
+          className="h-full rounded-pill bg-primary transition-all"
+          style={{ width: `${width}%` }}
+        />
       </div>
     </div>
   );

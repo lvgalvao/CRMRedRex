@@ -53,8 +53,6 @@ export function closeToDealPatch(input: CloseInput): Partial<Deal> {
   }
 }
 
-export const TERMINAL_STAGE: Record<CloseInput["status"], string> = {
-  won: "Ganho",
-  lost: "Perdido",
-  standby: "Stand-by",
-};
+// Mapeamento etapa terminal <-> status vive em dealStage.ts (fonte única, T011).
+// Reexportado aqui para não quebrar quem já importava de closeDeal.
+export { TERMINAL_STAGE } from "./dealStage";

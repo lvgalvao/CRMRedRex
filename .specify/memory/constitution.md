@@ -41,8 +41,8 @@ Follow-up TODOs: none. RATIFICATION_DATE = data de adoção desta constituição
 
 O objetivo do produto é **aumentar as vendas da RedRex**, não "ter um sistema". Toda
 feature DEVE responder a pelo menos uma das três perguntas do teste prático:
-*o que eu faço hoje?* (vendedor), *quanto vamos fechar este mês?* (gestor),
-*o que funciona pra vender?* (método). Feature que não serve a nenhuma das três
+_o que eu faço hoje?_ (vendedor), _quanto vamos fechar este mês?_ (gestor),
+_o que funciona pra vender?_ (método). Feature que não serve a nenhuma das três
 **fica fora do escopo** — corta.
 
 Consequências obrigatórias: o caminho "abrir CRM → ver o que fazer hoje → agir
@@ -58,6 +58,7 @@ completude de funcionalidades.
 ### II. Arquitetura em camadas (regra de negócio nos serviços)
 
 A separação de responsabilidades é não-negociável. As camadas:
+
 - **Apresentação** (`app/`, `components/`): componentes React pequenos; páginas só compõem.
 - **Aplicação** (`lib/services/`): **toda** regra de negócio (`createDealFromBooking`,
   `analyzeTranscript`, `fillTemplate`, `computeForecast`). UI, sync e webhooks só chamam.
@@ -76,8 +77,9 @@ evoluir sem reescrever; regra de negócio centralizada evita divergência de cá
 ### III. Integrações idempotentes com gatilhos finos
 
 Sincronização e webbooks são a maior superfície de risco e DEVEM ser idempotentes.
+
 - **Dedup pelo UUID, nunca pelo título**: `deals.calendly_event_uid` (Calendly) e
-  `meetingId` (tl;dv). Título/`event_type` só decide *quais* eventos puxar.
+  `meetingId` (tl;dv). Título/`event_type` só decide _quais_ eventos puxar.
 - **Gatilho fino**: rotas de sync/webhook validam o payload (ex.: `zod`), deduplicam,
   delegam ao serviço e respondem rápido (2xx); processamento pesado roda async.
 - **Push × Pull, destino único**: polling (plano Free) e webhook (upgrade pago) chamam
@@ -89,6 +91,7 @@ corretude vem da idempotência por UUID, não da ordem ou do conteúdo da mensag
 ### IV. Segurança e privacidade por padrão (LGPD)
 
 Requisitos, não sugestões:
+
 - **RLS habilitado em todas as tabelas**; `service role key` só em rotas de servidor.
 - **Segredos só no servidor**: nenhuma chave em `NEXT_PUBLIC_*`, nunca commitada; token
   do Calendly só no servidor; limite de gasto na API da Anthropic.
@@ -126,7 +129,7 @@ IA em runtime via API da Anthropic (Messages, `claude-sonnet-4-6`); integraçõe
 Configuração centralizada e tipada em `lib/env.ts` (falha cedo se faltar
 `CALENDLY_TOKEN`, `CALENDLY_USER_URI`, `CALENDLY_EVENT_TYPE_URI`, chaves de
 Supabase/tl;dv/Anthropic/Gmail, `CRON_SECRET`). Server Components por padrão; Client
-Component só com interatividade (drag-and-drop, botão *Atualizar*, forms). Migrations
+Component só com interatividade (drag-and-drop, botão _Atualizar_, forms). Migrations
 versionadas. Logs estruturados sem PII. Convenções: `camelCase` para variáveis,
 `PascalCase` para componentes e tipos.
 
@@ -151,6 +154,7 @@ permanece a fonte de verdade de produto.
 
 **Emendas**: alteração de princípio exige edição deste arquivo, justificativa no Sync
 Impact Report (HTML comment no topo) e bump de versão. Versionamento semântico:
+
 - **MAJOR**: remoção/redefinição incompatível de princípio ou governança.
 - **MINOR**: novo princípio/seção ou expansão material de orientação.
 - **PATCH**: esclarecimentos, redação, correções não-semânticas.

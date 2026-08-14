@@ -5,11 +5,11 @@
 **Status**: Draft
 **Input**: User description: "MVP comercial completo — escopo da seção 5 do PRD (`.llm/prd.md`): pipeline com dono e próxima ação, tela Hoje, propostas, playbooks preenchidos por IA, metas + dashboard de forecast, WhatsApp click-to-send, sincronização Calendly via polling, tl;dv + análise pós-call por IA."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 O CRM existe para **aumentar as vendas da RedRex**. Cada história abaixo é uma fatia
-independente que responde a uma das três perguntas do produto: *o que eu faço hoje?*
-(vendedor), *quanto vamos fechar este mês?* (gestor), *o que funciona pra vender?*
+independente que responde a uma das três perguntas do produto: _o que eu faço hoje?_
+(vendedor), _quanto vamos fechar este mês?_ (gestor), _o que funciona pra vender?_
 (método). As histórias estão ordenadas por prioridade; uma fatia de prioridade mais alta
 entrega valor mesmo sem as seguintes.
 
@@ -189,15 +189,17 @@ no-show.
 - **Sincronização parcial/paginada**: muitos agendamentos não podem fazer a sincronização perder eventos (paginação completa); falha no meio não pode duplicar nem perder a marca d'água.
 - **Acesso entre vendedores**: no MVP qualquer membro autenticado lê os dados; "Hoje" e ranking filtram por dono, não por permissão.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
 **Acesso e perfis**
+
 - **FR-001**: O sistema MUST exigir login para qualquer tela do CRM e negar acesso a não autenticados.
 - **FR-002**: O sistema MUST manter perfis dos membros do time com nome e papel (vendedor ou gestor), usados para atribuir dono aos deals e compor o ranking.
 
 **Pipeline, contatos e atividades**
+
 - **FR-003**: Usuários MUST poder cadastrar e editar empresas e contatos; cada contato registra origem (inbound ou outbound).
 - **FR-004**: Usuários MUST poder criar, editar e mover deals entre etapas, persistindo etapa e posição; cada deal exibe cliente, valor, dono e próxima ação.
 - **FR-005**: Cada etapa MUST ter uma probabilidade associada (usada no forecast).
@@ -205,31 +207,37 @@ no-show.
 - **FR-007**: Ao fechar um deal, o sistema MUST exigir: tipo (pontual/recorrente, com MRR quando recorrente) ao marcar "Ganho"; motivo padronizado ao marcar "Perdido"; data de reaquecer ao marcar "Stand-by".
 
 **Próxima ação e tela "Hoje"**
+
 - **FR-008**: Todo deal aberto MUST poder ter uma próxima ação com data.
 - **FR-009**: O sistema MUST oferecer a tela "Hoje" que lista, para o vendedor logado, os follow-ups de hoje e atrasados, ordenados por urgência (atrasados primeiro) e com os atrasados destacados.
 - **FR-010**: A tela "Hoje" MUST mostrar apenas os deals do vendedor logado.
 
 **Propostas**
+
 - **FR-011**: Usuários MUST poder criar e versionar propostas por deal, com valor, status (rascunho → enviada → vista → aceita → recusada), validade e link do documento.
 - **FR-012**: A mudança de status da proposta MUST mover o deal para a etapa correspondente; propostas vencendo MUST ser destacadas.
 
 **Playbooks e WhatsApp**
+
 - **FR-013**: O sistema MUST manter uma biblioteca de playbooks por categoria (diagnóstico, objeção, follow-up, proposta, reengajamento).
 - **FR-014**: O sistema MUST preencher, sob demanda, um playbook com os dados do contato/deal (nome, empresa, dores, próximo passo) e devolver o texto pronto, sem enviar nada.
 - **FR-015**: O sistema MUST oferecer um botão que abre o WhatsApp do contato com a mensagem do playbook já preenchida para envio manual; MUST tratar contato sem telefone com mensagem clara.
 
 **Metas e forecast**
+
 - **FR-016**: O gestor MUST poder cadastrar metas mensais do time e por vendedor.
 - **FR-017**: O sistema MUST calcular o forecast ponderado (soma, para deals abertos, de valor × probabilidade da etapa) em um único ponto de cálculo, por total, por etapa e por vendedor.
 - **FR-018**: O dashboard MUST exibir forecast ponderado × meta e % de atingimento do mês, pipeline em aberto por etapa, ganhos × perdidos no período, ticket médio, ciclo de venda médio, MRR novo do mês e ranking por vendedor.
 
 **Sincronização de diagnósticos (Calendly)**
+
 - **FR-019**: O sistema MUST sincronizar os agendamentos do tipo "diagnóstico", sob disparo manual ("Atualizar") e/ou rotina periódica, criando/atualizando contato (origem inbound) e criando o deal em "Diagnóstico agendado".
 - **FR-020**: O deal criado pela sincronização MUST nascer com dono e próxima ação ("Confirmar presença + enviar lembrete", com data no dia anterior à reunião).
 - **FR-021**: A sincronização MUST ser idempotente, deduplicando pelo identificador único do evento (nunca pelo título), e MUST seguir a paginação completa sem perder eventos.
 - **FR-022**: A sincronização MUST refletir cancelamentos no deal correspondente.
 
 **Transcrição e análise pós-call (tl;dv + IA)**
+
 - **FR-023**: Ao chegar uma transcrição, o sistema MUST associá-la ao deal correto, registrá-la na timeline, marcar presença "compareceu" e mover o deal para "Diagnóstico realizado".
 - **FR-024**: O processamento de transcrição MUST ser idempotente (a mesma reunião recebida duas vezes não duplica).
 - **FR-025**: O sistema MUST disparar uma análise por IA que gera resumo, qualificação e próximo passo, grava a próxima ação (com data) no deal e prepara um rascunho de follow-up por e-mail citando as dores — sempre para revisão humana, nunca envio automático.
@@ -237,11 +245,12 @@ no-show.
 - **FR-027**: O sistema MUST marcar no-show quando a reunião passa sem transcrição.
 
 **Segurança e privacidade (transversal)**
+
 - **FR-028**: O sistema MUST restringir todo o acesso a dados a membros autenticados (single-org no MVP).
 - **FR-029**: Entradas de sincronização e webhooks MUST validar o payload e responder rápido, processando o trabalho pesado de forma assíncrona; webhooks MUST verificar a autenticidade da origem antes de processar.
 - **FR-030**: O sistema MUST tratar transcrições e propostas como dados sensíveis: minimizar dados pessoais em logs e enviar à IA apenas o necessário.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Perfil**: membro do time (nome, papel vendedor/gestor); é o dono de deals e a unidade do ranking.
 - **Empresa**: organização cliente (nome, domínio).
@@ -254,7 +263,7 @@ no-show.
 - **Atividade**: evento na timeline de um deal/contato (nota, ligação, transcrição, análise, e-mail, proposta), com conteúdo e data.
 - **Estado de sincronização**: marca d'água do último processamento da origem de agendamentos.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -23,11 +23,7 @@ export async function ensureProfile(
 ): Promise<Profile> {
   const existing = await getProfile(db, id);
   if (existing) return existing;
-  const { data, error } = await db
-    .from("profiles")
-    .insert({ id, name, role })
-    .select("*")
-    .single();
+  const { data, error } = await db.from("profiles").insert({ id, name, role }).select("*").single();
   if (error) throw error;
   return data;
 }

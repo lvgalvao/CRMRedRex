@@ -3,7 +3,10 @@ import type { Stage, TypedClient } from "@/lib/supabase/types";
 type DB = TypedClient;
 
 export async function listStages(db: DB): Promise<Stage[]> {
-  const { data, error } = await db.from("stages").select("*").order("position", { ascending: true });
+  const { data, error } = await db
+    .from("stages")
+    .select("*")
+    .order("position", { ascending: true });
   if (error) throw error;
   return data ?? [];
 }

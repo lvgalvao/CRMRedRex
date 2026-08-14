@@ -13,8 +13,6 @@ export async function upsertGoal(
   db: DB,
   input: { owner_id: string | null; month: string; target_value: number },
 ): Promise<void> {
-  const { error } = await db
-    .from("goals")
-    .upsert(input, { onConflict: "owner_id,month" });
+  const { error } = await db.from("goals").upsert(input, { onConflict: "owner_id,month" });
   if (error) throw error;
 }

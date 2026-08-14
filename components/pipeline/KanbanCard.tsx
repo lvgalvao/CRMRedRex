@@ -19,10 +19,11 @@ export function KanbanCard({ deal }: { deal: DealWithContact }) {
 
   const isOpen = deal.status === "open";
   const parado = isOpen && !deal.next_action; // edge case: deal sem próxima ação
-  const overdue =
-    isOpen &&
-    deal.next_action_date != null &&
-    deal.next_action_date < new Date().toISOString().slice(0, 10);
+  const hoje = new Date().toISOString().slice(0, 10);
+  const overdue = isOpen && deal.next_action_date != null && deal.next_action_date < hoje;
+  // Previsão de fechamento estourada: sinal comercial para o gestor (FR-007).
+  const previsaoVencida =
+    isOpen && deal.expected_close_date != null && deal.expected_close_date < hoje;
 
   return (
     <div
@@ -57,6 +58,11 @@ export function KanbanCard({ deal }: { deal: DealWithContact }) {
         ) : null}
         {parado ? (
           <span className="rounded-pill bg-warning/20 px-2 py-0.5 text-warning">parado</span>
+        ) : null}
+        {previsaoVencida ? (
+          <span className="rounded-pill bg-danger/10 px-2 py-0.5 text-danger">
+            ⚠ previsão vencida
+          </span>
         ) : null}
       </div>
     </div>

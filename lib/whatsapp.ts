@@ -7,9 +7,7 @@ export function isValidPhone(phone: string | null | undefined): phone is string 
   return typeof phone === "string" && E164.test(phone.trim());
 }
 
-export type WhatsAppResult =
-  | { ok: true; url: string }
-  | { ok: false; error: string };
+export type WhatsAppResult = { ok: true; url: string } | { ok: false; error: string };
 
 /** Monta o link wa.me com o texto preenchido, ou erro claro se o telefone for inválido. */
 export function buildWhatsAppLink(phone: string | null | undefined, text: string): WhatsAppResult {

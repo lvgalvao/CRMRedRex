@@ -24,7 +24,11 @@ export function isGmailConfigured(): boolean {
  * Cria um rascunho no Gmail (drafts.create), nunca envia. Retorna se foi criado.
  * Stub: integra com a API do Gmail quando as credenciais existirem.
  */
-export async function createGmailDraft(_to: string, _subject: string, _body: string): Promise<DraftResult> {
+export async function createGmailDraft(
+  _to: string,
+  _subject: string,
+  _body: string,
+): Promise<DraftResult> {
   if (!isGmailConfigured()) {
     return { created: false, provider: "crm_fallback" };
   }

@@ -24,9 +24,7 @@ export function KanbanBoard({ stages, deals: initialDeals, moveDealAction }: Pro
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   function dealsByStage(stageId: string) {
-    return deals
-      .filter((d) => d.stage_id === stageId)
-      .sort((a, b) => a.position - b.position);
+    return deals.filter((d) => d.stage_id === stageId).sort((a, b) => a.position - b.position);
   }
 
   async function onDragEnd(event: DragEndEvent) {

@@ -34,7 +34,11 @@ export default async function ContactsPage() {
           <h2 className="font-semibold">Novo contato</h2>
           <input name="name" placeholder="Nome" required className={field} />
           <input name="email" type="email" placeholder="E-mail" required className={field} />
-          <input name="phone" placeholder="Telefone (E.164, ex. +5511999998888)" className={field} />
+          <input
+            name="phone"
+            placeholder="Telefone (E.164, ex. +5511999998888)"
+            className={field}
+          />
           <select name="company_id" className={field} defaultValue="">
             <option value="">Sem empresa</option>
             {companies.map((c) => (
@@ -58,10 +62,7 @@ export default async function ContactsPage() {
         <ul className="flex flex-col gap-1">
           {contacts.map((c) => (
             <li key={c.id}>
-              <Link
-                href={`/contacts/${c.id}`}
-                className="text-sm text-accent hover:underline"
-              >
+              <Link href={`/contacts/${c.id}`} className="text-sm text-accent hover:underline">
                 {c.name} · {c.email}
               </Link>
             </li>

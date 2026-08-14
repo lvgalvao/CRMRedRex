@@ -1,4 +1,5 @@
 # PRD — CRM da RedRex
+
 ### Documento único: requisitos de produto + constituição do projeto
 
 **Produto:** CRM interno da RedRex (consultoria de engenharia de dados & IA)
@@ -11,21 +12,26 @@
 # PARTE 1 — Produto e negócio
 
 ## 1. Contexto e problema
+
 A RedRex vende a partir de uma **Reunião de Diagnóstico** (agendada via Calendly). Hoje o controle do funil é manual: agendamentos no Calendly, gravações no tl;dv, follow-ups na memória. Resultado: oportunidades esfriam por falta de follow-up, não há visão de pipeline nem de **forecast contra meta**, e o conhecimento das melhores calls não vira método para o time.
 
 ## 2. Objetivo
+
 **O objetivo é aumentar as vendas da RedRex** — não "ter um sistema". O CRM existe para:
+
 - dar **controle das reuniões** comerciais ponta a ponta;
 - garantir o **follow-up de clientes estratégicos** (zero oportunidade perdida por esquecimento), guiando o vendedor pela **próxima ação** de cada deal;
 - gerar **scripts e playbooks** que elevam todo vendedor ao nível do melhor vendedor;
-- dar ao gestor **forecast contra meta** para saber, a qualquer momento, *quanto vamos fechar este mês*.
+- dar ao gestor **forecast contra meta** para saber, a qualquer momento, _quanto vamos fechar este mês_.
 
-Princípio de produto: toda feature responde **"isso aumenta venda?"**. Se não responde, fica fora do escopo. **Teste prático do CRM comercial:** ele responde sozinho a três perguntas — *o que eu faço hoje?* (vendedor), *quanto vamos fechar este mês?* (gestor), *o que funciona pra vender?* (método). Se uma feature não serve a nenhuma das três, corta.
+Princípio de produto: toda feature responde **"isso aumenta venda?"**. Se não responde, fica fora do escopo. **Teste prático do CRM comercial:** ele responde sozinho a três perguntas — _o que eu faço hoje?_ (vendedor), _quanto vamos fechar este mês?_ (gestor), _o que funciona pra vender?_ (método). Se uma feature não serve a nenhuma das três, corta.
 
 ## 3. Métricas de sucesso (KPIs)
+
 O dashboard é parte central do produto, não enfeite. Dois grupos: **resultado** (o número que o gestor cobra) e **atividade** (o que prevê o resultado).
 
 **Resultado / forecast:**
+
 - **Atingimento de meta** (% da meta do mês) — do time e por vendedor
 - **Forecast ponderado** — Σ (valor do deal × probabilidade da etapa) dos deals em aberto
 - **Pipeline em aberto (R$)** por etapa (valor bruto, sem ponderar)
@@ -33,6 +39,7 @@ O dashboard é parte central do produto, não enfeite. Dois grupos: **resultado*
 - **Ticket médio** e split **pontual × recorrente** (MRR novo no mês)
 
 **Funil / atividade:**
+
 - Reuniões (diagnósticos) **agendadas no mês**
 - **Taxa de comparecimento / no-show** (fonte: campo `attendance` do deal)
 - **Taxa de conversão por etapa** do funil
@@ -44,12 +51,15 @@ O dashboard é parte central do produto, não enfeite. Dois grupos: **resultado*
 - **Ranking por vendedor** (conversão e R$ ganho) — para identificar o melhor e replicar o método
 
 ## 4. Usuários
+
 - **Vendedor (RedRex):** trabalha o pipeline, conduz diagnósticos, faz follow-up. Abre o CRM **para ver o que precisa fazer hoje**.
 - **Gestor (Luciano):** acompanha **meta × forecast**, identifica deals parados e clientes estratégicos sem follow-up, vê o ranking do time.
 - Sem acesso externo de cliente no MVP.
 
 ## 5. Escopo
+
 **No MVP:**
+
 - Autenticação do time + **perfis** (nome, papel) para atribuir dono aos deals.
 - Pipeline **Kanban** (etapas com **probabilidade**, drag-and-drop, contatos, empresas) com **dono (owner)** por deal.
 - **Próxima ação + data** por deal e tela **"Hoje"** (follow-ups de hoje e atrasados) — o motor diário do vendedor.
@@ -64,6 +74,7 @@ O dashboard é parte central do produto, não enfeite. Dois grupos: **resultado*
 **Fora do MVP:** **win-rate por playbook** (qual script converte mais — depende de histórico); **motor de alertas automáticos** (follow-up atrasado, proposta vencendo); "por que perdemos" agregado via transcripts; mapa de stakeholders; multi-tenant/acesso de cliente; **envio** automático de e-mail (no MVP só rascunho, revisão humana obrigatória); **webhook do Calendly em tempo real** (upgrade pago, ver seção 16).
 
 ## 6. Fluxo de sucesso da reunião comercial
+
 1. **Entrada e qualificação** — Inbound: Calendly via **polling** cria contato/deal direto em "Diagnóstico agendado". Outbound: deal entra em "Novo lead" e **só avança para "Diagnóstico agendado" depois de "Qualificado"** (diagnóstico é hora de sênior — não se agenda quem não compra). E-mail de aviso. O deal já nasce com **dono** e **próxima ação**.
 2. **Preparação (pré-call)** — script de diagnóstico gerado a partir do **playbook** + dados do contato/empresa.
 3. **A call** — tl;dv grava/transcreve; o transcript chega, vira atividade no deal, **marca presença (`attendance='compareceu'`)** e move o deal para "Diagnóstico realizado". (No-show é marcado quando a call passa sem transcript.)
@@ -72,6 +83,7 @@ O dashboard é parte central do produto, não enfeite. Dois grupos: **resultado*
 6. **Fechamento** — **"Ganho"** (com **tipo**: pontual ou recorrente + MRR; valor entra no dashboard e na meta), **"Perdido"** (com **motivo padronizado**) ou **"Stand-by"** (deal não morto: congelou orçamento/ficou pro próximo trimestre — com **data para reaquecer**).
 
 ## 7. Requisitos funcionais
+
 - **RF1** Login seguro; rotas do CRM protegidas. **Perfis** (`profiles`) com nome e papel.
 - **RF2** CRUD de empresas, contatos (com `origem`), deals e etapas (etapa tem `probability`).
 - **RF3** Kanban com reordenação e movimentação entre etapas (persistir `position` e `stage_id`); cada deal exibe **dono**, **valor**, **próxima ação/data**.
@@ -81,12 +93,13 @@ O dashboard é parte central do produto, não enfeite. Dois grupos: **resultado*
 - **RF7** **Playbooks/templates:** biblioteca por categoria (diagnóstico, objeção, follow-up, proposta, reengajamento); a IA **preenche o template** com os dados do contato/deal sob demanda.
 - **RF8** **WhatsApp click-to-send:** botão que abre o WhatsApp (`wa.me`) com a mensagem do template já preenchida (sem API, sem custo).
 - **RF9** **Metas e forecast:** cadastrar meta mensal (time e por vendedor); dashboard com **forecast ponderado × meta**, % de atingimento, ticket médio, ciclo de venda, MRR novo, ranking por vendedor.
-- **RF10** **Sincronização Calendly (_polling_ da API v2, plano Free):** puxa os eventos do **tipo "diagnóstico"**, cria/atualiza contato e deal; **idempotente por UUID do evento**; deal nasce com dono e próxima ação. Disparo manual (botão *Atualizar*) e/ou cron. Trata cancelamentos. *(Webhook `invitee.created` = upgrade pago, mesmo serviço.)*
+- **RF10** **Sincronização Calendly (_polling_ da API v2, plano Free):** puxa os eventos do **tipo "diagnóstico"**, cria/atualiza contato e deal; **idempotente por UUID do evento**; deal nasce com dono e próxima ação. Disparo manual (botão _Atualizar_) e/ou cron. Trata cancelamentos. _(Webhook `invitee.created` = upgrade pago, mesmo serviço.)_
 - **RF11** Webhook tl;dv: associa transcript ao deal certo; marca presença; **idempotente**.
 - **RF12** Análise pós-call via API da Anthropic; grava análise + **próxima ação** no CRM; cria rascunho no Gmail.
 - **RF13** Dashboard com os KPIs da seção 3.
 
 ## 8. Requisitos não-funcionais
+
 - **Segurança/privacidade** conforme Parte 3.
 - **Usabilidade (é requisito comercial):** o caminho "abrir CRM → ver o que fazer hoje → agir (WhatsApp/e-mail) → atualizar deal" tem que ser de poucos cliques. Vendedor não usa CRM difícil — e CRM que não se usa não vende.
 - **Manutenibilidade:** arquitetura em camadas, componentes pequenos, integrações isoladas.
@@ -99,24 +112,28 @@ O dashboard é parte central do produto, não enfeite. Dois grupos: **resultado*
 # PARTE 2 — Arquitetura e implementação
 
 ## 9. Stack
+
 - Next.js (App Router) + TypeScript
 - Tailwind CSS + shadcn/ui
 - Supabase (Postgres + Auth + Row Level Security)
 - Deploy: Vercel (inclui Cron para o polling)
-- Runtime inbound: **Calendly — _polling_ da API v2 (plano Free)**; tl;dv (webhooks `MeetingReady` / `TranscriptReady`). *Webhook `invitee.created` do Calendly = upgrade opcional pago.*
+- Runtime inbound: **Calendly — _polling_ da API v2 (plano Free)**; tl;dv (webhooks `MeetingReady` / `TranscriptReady`). _Webhook `invitee.created` do Calendly = upgrade opcional pago._
 - IA em runtime: API da Anthropic (endpoint Messages) para análise pós-call e preenchimento de playbooks
 - Saída: Gmail (rascunho) + **WhatsApp click-to-send** (`wa.me`, sem API)
 
 ## 10. As duas camadas (regra mental do projeto)
+
 1. **Runtime do app** — a sincronização do Calendly (polling) e o webhook do tl;dv criam contato, movem deal, gravam transcript, marcam presença, mandam e-mail. Código de backend; sem IA decidindo.
 2. **IA em runtime** — o backend chama a API da Anthropic para analisar o transcript, definir a próxima ação e preencher playbooks/follow-up.
 
 **Onde a IA roda (a distinção que mais confunde):** análise automática = serviço de runtime chamando a API (API key com billing, separada do Pro/Max). **Subagente do Claude Code** (`.claude/agents/`) é ferramenta de **dev/uso manual** — não faz parte do app em produção. Não se "deploya" um subagente.
 
-**Push × Pull (o que muda no plano Free):** webhook é *push* (tempo real, pago); polling é *pull* (o app pergunta "tem diagnóstico novo?", funciona no Free com minutos de atraso). **Os dois chamam o mesmo serviço (`createDealFromBooking`); muda só o gatilho.**
+**Push × Pull (o que muda no plano Free):** webhook é _push_ (tempo real, pago); polling é _pull_ (o app pergunta "tem diagnóstico novo?", funciona no Free com minutos de atraso). **Os dois chamam o mesmo serviço (`createDealFromBooking`); muda só o gatilho.**
 
 ## 11. Modelo de dados
+
 Ver **Apêndice A** (`schema.sql`). Tabelas:
+
 - `profiles` — membros do time (dono dos deals, ranking).
 - `companies`, `contacts` (com `origem`).
 - `stages` (com `probability` para o forecast).
@@ -130,15 +147,18 @@ Ver **Apêndice A** (`schema.sql`). Tabelas:
 Todas com RLS. Os campos de `deals`/`stages`/`proposals`/`goals` e os timestamps de `activities` sustentam **todas** as métricas da seção 3.
 
 ## 12. Arquitetura para manutenção
+
 Objetivo: trocar Calendly por Cal.com, tl;dv por outro, ou o modelo de IA, mexendo em **um** lugar.
 
 **Camadas (separação de responsabilidades):**
+
 - **Apresentação** — componentes React pequenos; páginas só compõem.
 - **Aplicação (serviços)** — `lib/services/` (ex.: `createDealFromBooking`, `analyzeTranscript`, `fillTemplate`, `computeForecast`). Regra de negócio aqui; sync, webhooks e UI só chamam.
 - **Dados (repositórios)** — `lib/supabase/` encapsula o banco.
 - **Integrações (adapters)** — `lib/integrations/{calendly,tldv,anthropic,gmail}.ts` + `lib/whatsapp.ts`, cada uma atrás de uma interface.
 
 **Estrutura de pastas:**
+
 ```
 app/
   (auth)/                      ← login (Supabase Auth)
@@ -173,6 +193,7 @@ supabase/schema.sql            ← schema + RLS + seed (Apêndice A)
 ```
 
 **Regras de organização:**
+
 - **Gatilhos finos:** sync e webhooks validam, deduplicam (UUID / `meetingId`), delegam ao serviço e respondem rápido.
 - **Componentização:** arquivo > ~300 linhas, quebra. Página compõe; componente faz uma coisa.
 - **Config centralizada e tipada** (`lib/env.ts`): valida `CALENDLY_TOKEN`, `CALENDLY_USER_URI`, `CALENDLY_EVENT_TYPE_URI`, chaves do Supabase/tl;dv/Anthropic/Gmail, `CRON_SECRET`.
@@ -181,12 +202,14 @@ supabase/schema.sql            ← schema + RLS + seed (Apêndice A)
 - **Migrations versionadas; testes:** unidade nos serviços (forecast, fill de template), contrato no parsing do Calendly/tl;dv.
 
 ## 13. Convenções de código
+
 - TypeScript em tudo. `camelCase` para variáveis, `PascalCase` para componentes e tipos.
-- Server Components por padrão; Client Component só com interatividade (drag-and-drop, botão *Atualizar*, forms).
+- Server Components por padrão; Client Component só com interatividade (drag-and-drop, botão _Atualizar_, forms).
 - Nunca commitar `.env`. Toda chave em variável de ambiente; token do Calendly só no servidor.
 - A IA executa; **a decisão de arquitetura é humana**. Em dúvida de design, pare e pergunte.
 
 ## 14. Design — identidade RedRex (claro, executivo)
+
 > Atualizado (v2.1): identidade migrou de dark+vermelho para **tema claro executivo** (preto + verde-limão), conforme `.llm/crm.png`. Pontos de partida; ajuste no `tailwind.config.ts`.
 > **Referência visual:** `.llm/crm.png` — sidebar à esquerda, faixa de KPIs/forecast no topo e Kanban na mesma tela. Layout/hierarquia limpos, muito espaço em branco, cards brancos sobre fundo creme.
 
@@ -199,6 +222,7 @@ supabase/schema.sql            ← schema + RLS + seed (Apêndice A)
 - **Sinais comerciais visíveis:** próxima ação atrasada **em vermelho** (`#DC2626`, reservado para atraso/erro); proposta vencendo destacada; barra **forecast × meta** + gauge de taxa de sucesso no topo; **visão executiva** (forecast + KPIs + pipeline na mesma tela) como primeira coisa ao logar. A tela **"Hoje"** continua acessível na sidebar como motor diário do vendedor.
 
 ## 15. Como o Claude Code deve trabalhar
+
 1. Spec/plan primeiro; só depois código.
 2. Um componente por vez, arquivos pequenos.
 3. Mostre o diff e espere revisão em mudanças de arquitetura ou schema.
@@ -209,9 +233,10 @@ supabase/schema.sql            ← schema + RLS + seed (Apêndice A)
 # PARTE 3 — Revisão de segurança (requisitos, não sugestões)
 
 **Sincronização e webhooks (maior superfície de ataque):**
+
 - **Calendly por polling (Free):** sem assinatura a verificar (chamada de saída). Proteções: **token só no servidor** (`CALENDLY_TOKEN`), **rota de sync protegida** (sessão Supabase, ou cron com `CRON_SECRET`), **dedup por UUID do evento**.
 - **Webhook do Calendly (upgrade pago) e tl;dv:** **verificar assinatura** antes de processar. Calendly: header `Calendly-Webhook-Signature` (HMAC-SHA256), comparação em **tempo constante**. tl;dv: validar segredo/origem. Sem verificação → `401`.
-- **Idempotência:** deduplique pelo **UUID do evento do Calendly** (`deals.calendly_event_uid`) e pelo `meetingId` do tl;dv. **A chave de dedup é o UUID, nunca o título** — o título só filtra *quais* eventos puxar.
+- **Idempotência:** deduplique pelo **UUID do evento do Calendly** (`deals.calendly_event_uid`) e pelo `meetingId` do tl;dv. **A chave de dedup é o UUID, nunca o título** — o título só filtra _quais_ eventos puxar.
 - **Validação de payload** (ex.: `zod`) antes de tocar o banco.
 - **Responder rápido e processar async;** **rate limiting** nas rotas públicas; cron de polling em intervalo sensato (5–15 min).
 
@@ -226,17 +251,20 @@ supabase/schema.sql            ← schema + RLS + seed (Apêndice A)
 # PARTE 4 — Riscos, roadmap e aceite
 
 ## 16. Riscos e dependências
+
 - **Calendly (plano Free):** sincronização por **polling** (atraso de minutos), não tempo real. A API v2 (GET/POST) funciona em qualquer plano, inclusive Free; o **webhook em tempo real exige plano pago** (upgrade opcional, mesmo serviço).
 - **tl;dv** exige plano Business para o transcript automático; **API da Anthropic** exige key com billing.
 - **Adoção é risco comercial:** se o vendedor não atualizar o `next_action`/status, o forecast mente. Mitigação: tela "Hoje" + WhatsApp em poucos cliques + a IA já preenchendo a próxima ação pós-call.
 - Integrações de terceiros: trate re-entrega, atraso, paginação e payload mudando (idempotência + testes de contrato).
 
 ## 17. Roadmap
+
 - **Fase 1 (MVP comercial):** seções 5 e 7 — pipeline com dono e próxima ação, tela "Hoje", propostas, playbooks (preenchidos por IA), metas + forecast, WhatsApp, Calendly via polling, tl;dv + análise.
 - **Fase 2:** **win-rate por playbook** (qual script converte), **motor de alertas** (follow-up atrasado, proposta vencendo, stand-by chegando na data de reaquecer), "por que perdemos" agregado, webhook do Calendly em tempo real.
 - **Fase 3:** envio automático de e-mail (com salvaguardas), enriquecimento de contato, mapa de stakeholders, papéis/permissões granulares.
 
 ## 18. Critérios de aceite (MVP)
+
 - **Forecast × meta** aparece no dashboard com dados reais (ponderado por etapa) e % de atingimento do mês.
 - A tela **"Hoje"** lista os follow-ups de hoje e atrasados do vendedor logado.
 - Clicar **Atualizar** puxa os diagnósticos do Calendly e cria contato + deal (com dono e próxima ação), **sem duplicar** em clique repetido.
@@ -421,7 +449,8 @@ insert into public.templates (name, category, body) values
 # Apêndice B — Specs de implementação
 
 ## B1. Sincronização Calendly — `POST /api/sync/calendly` (runtime, plano Free) ⭐
-Pré-requisito: Calendly **Free** + personal access token. **Disparo:** botão *Atualizar* (usuário autenticado) e/ou Vercel Cron com `CRON_SECRET`. Sem assinatura (chamada de saída).
+
+Pré-requisito: Calendly **Free** + personal access token. **Disparo:** botão _Atualizar_ (usuário autenticado) e/ou Vercel Cron com `CRON_SECRET`. Sem assinatura (chamada de saída).
 
 **Passos:** (1) autorizar o disparo; (2) ler `sync_state['calendly:last_synced_at']` (1ª vez = `now()`); (3) `GET /scheduled_events` com `user`, `status=active`, `min_start_time`, `sort=start_time:asc`, **seguindo paginação**; (4) **filtrar pelo `event_type`/título do diagnóstico** (decide o que entra, não deduplica); (5) **dedup por `deals.calendly_event_uid`** (pula o que já existe); (6) `GET /scheduled_events/{uuid}/invitees` → e-mail/nome/`questions_and_answers`; (7) `find-or-create` empresa/contato (`origem='inbound'`); (8) criar deal em "Diagnóstico agendado" com `calendly_event_uid`, **`owner_id`** (regra simples de rodízio ou quem disparou) e **`next_action`** ("Confirmar presença + enviar lembrete", `next_action_date` = dia da call − 1); (9) atividade `note` com o formulário; (10) e-mail de aviso; (11) atualizar marca d'água. Trata cancelamentos (`status=canceled` → marca o deal). Handler fino → serviço **`createDealFromBooking`** (o mesmo do webhook opcional).
 
@@ -435,45 +464,70 @@ async function listDiagnosticos(minStartTime: string) {
     `&status=active&min_start_time=${encodeURIComponent(minStartTime)}` +
     `&sort=start_time:asc&count=100`;
   while (url) {
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${process.env.CALENDLY_TOKEN!}` } });
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${process.env.CALENDLY_TOKEN!}` },
+    });
     if (!res.ok) throw new Error(`Calendly ${res.status}`);
     const json = await res.json();
     for (const ev of json.collection) {
-      if (ev.event_type === process.env.CALENDLY_EVENT_TYPE_URI) {     // filtra pelo TIPO (título)
-        out.push({ uid: ev.uri.split("/").pop(), name: ev.name, start_time: ev.start_time, invitees_uri: `${ev.uri}/invitees` });
+      if (ev.event_type === process.env.CALENDLY_EVENT_TYPE_URI) {
+        // filtra pelo TIPO (título)
+        out.push({
+          uid: ev.uri.split("/").pop(),
+          name: ev.name,
+          start_time: ev.start_time,
+          invitees_uri: `${ev.uri}/invitees`,
+        });
       }
     }
     url = json.pagination?.next_page ?? "";
   }
-  return out;  // dedup por `uid` (calendly_event_uid) acontece no serviço
+  return out; // dedup por `uid` (calendly_event_uid) acontece no serviço
 }
 ```
-> **Nota didática:** `min_start_time` filtra por *quando a reunião acontece*, não por quando foi criada; a corretude vem do **dedup por UUID**. A própria Calendly recomenda guardar o instante da última consulta como `min_start_time` ao fazer polling.
+
+> **Nota didática:** `min_start_time` filtra por _quando a reunião acontece_, não por quando foi criada; a corretude vem do **dedup por UUID**. A própria Calendly recomenda guardar o instante da última consulta como `min_start_time` ao fazer polling.
 
 ## B1-alt. (Opcional, pago) Webhook Calendly — `POST /api/webhooks/calendly`
+
 Mesmo destino, gatilho diferente: (1) verificar assinatura HMAC; (2) dedup por `calendly_event_uid`; (3) validar; (4) **chamar o mesmo `createDealFromBooking`**; (5) `200`, pesado async. Migração polling → webhook = só plugar outro gatilho.
 
 ## B2. Webhook tl;dv — `POST /api/webhooks/tldv` (runtime)
+
 Pré-requisito: tl;dv Business. `MeetingReady` casa por e-mail com o deal (`meetingId → deal_id`). `TranscriptReady` recupera o `deal_id` pelo `meetingId`, grava atividade `transcript`, **marca `attendance='compareceu'`**, move o deal para "Diagnóstico realizado" e **dispara a análise** (async). Idempotente por `meetingId`. No-show: regra/Job que marca `no_show` quando a call passou e não veio transcript. LGPD: consentimento, retenção, acesso restrito.
 
 ## B3. Serviço de análise pós-call — `lib/services/analyzeTranscript` (IA em runtime)
+
 Disparado por B2. Lê o transcript → chama a **API da Anthropic** (Messages, Sonnet 4.6) para: resumo, qualificação (fit/orçamento/prazo/dores), **próximo passo**. Grava atividade `analysis`, **escreve `deals.next_action` + `next_action_date`** (alimenta a tela "Hoje") e **cria rascunho de follow-up no Gmail** (a partir do template `followup`, citando as dores exatas). Captura falha sem travar o pipeline.
+
 ```ts
 const res = await fetch("https://api.anthropic.com/v1/messages", {
   method: "POST",
-  headers: { "x-api-key": process.env.ANTHROPIC_API_KEY!, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-  body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1500, messages: [{ role: "user", content: prompt }] }),
+  headers: {
+    "x-api-key": process.env.ANTHROPIC_API_KEY!,
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json",
+  },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-6",
+    max_tokens: 1500,
+    messages: [{ role: "user", content: prompt }],
+  }),
 });
 ```
 
 ## B4. Preenchimento de playbook — `lib/services/fillTemplate` (IA, sob demanda)
+
 Recebe `templateId` + `dealId`. Carrega o `templates.body` e os dados do deal/contato (dores da análise, nome, empresa, próximo passo) → a IA substitui as `{{variaveis}}` e devolve o texto pronto. Usado no botão de WhatsApp/e-mail e no script de diagnóstico pré-call. Não envia nada — só gera o texto para revisão humana.
 
 ## B5. WhatsApp click-to-send — `lib/whatsapp.ts` (sem API, sem custo)
+
 Monta `https://wa.me/<telefone_e164>?text=<texto_url_encoded>` a partir de `contacts.phone` + texto vindo do `fillTemplate`. Botão `WhatsAppButton` abre em nova aba. Zero dependência paga; maior ganho de usabilidade do projeto.
 
 ## B6. Forecast & metas — `lib/services/computeForecast` + dashboard
+
 `computeForecast`: para deals com `status='open'`, soma `value × (stage.probability/100)` (ponderado) e `value` (bruto), por etapa, por owner e no total. Cruza com `goals` do mês (time e vendedor) → % de atingimento. Dashboard mostra: barra **forecast × meta**, pipeline por etapa, ganhos/perdidos no período, ticket médio, ciclo de venda (média de `won.updated_at − created_at`), MRR novo (Σ `mrr` de deals ganhos recorrentes no mês) e **ranking por vendedor**.
 
 ## B7. Subagente de briefing pré-call — `.claude/agents/briefing-pre-call.md` (DEV/manual)
+
 Ferramenta de dev/uso manual, **não** roda em produção. Lê contato/empresa + template `diagnostico` → gera o script → grava atividade `analysis` (`metadata.kind='briefing'`). Protótipo da lógica antes de virar serviço, e útil para o gestor rodar sob demanda.

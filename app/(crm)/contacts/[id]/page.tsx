@@ -36,10 +36,19 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <form action={createDeal} className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4">
+        <form
+          action={createDeal}
+          className="flex flex-col gap-2 rounded-card border border-border bg-surface p-4"
+        >
           <h2 className="font-semibold">Novo deal para este contato</h2>
           <input name="title" placeholder="Título do deal" required className={field} />
-          <input name="value" type="number" step="0.01" placeholder="Valor (R$)" className={field} />
+          <input
+            name="value"
+            type="number"
+            step="0.01"
+            placeholder="Valor (R$)"
+            className={field}
+          />
           <input name="next_action" placeholder="Próxima ação" className={field} />
           <input name="next_action_date" type="date" className={field} />
           <button className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">

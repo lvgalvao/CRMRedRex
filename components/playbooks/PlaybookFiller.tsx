@@ -37,7 +37,11 @@ export function PlaybookFiller({
       <div className="grid gap-3 md:grid-cols-2">
         <label className="flex flex-col gap-1 text-sm">
           <span className="text-muted-foreground">Playbook</span>
-          <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} className={field}>
+          <select
+            value={templateId}
+            onChange={(e) => setTemplateId(e.target.value)}
+            className={field}
+          >
             {templates.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.category} · {t.name}

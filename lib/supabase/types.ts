@@ -12,13 +12,7 @@ export type Origem = "inbound" | "outbound";
 export type DealType = "pontual" | "recorrente";
 export type DealStatus = "open" | "won" | "lost" | "standby";
 export type Attendance = "pendente" | "compareceu" | "no_show" | "remarcado";
-export type LostReason =
-  | "preço"
-  | "timing"
-  | "concorrente"
-  | "sem_budget"
-  | "sumiu"
-  | "outro";
+export type LostReason = "preço" | "timing" | "concorrente" | "sem_budget" | "sumiu" | "outro";
 export type ProposalStatus = "rascunho" | "enviada" | "vista" | "aceita" | "recusada";
 export type TemplateCategory =
   | "diagnostico"
@@ -26,27 +20,21 @@ export type TemplateCategory =
   | "followup"
   | "proposta"
   | "reengajamento";
-export type ActivityType =
-  | "note"
-  | "call_note"
-  | "transcript"
-  | "analysis"
-  | "email"
-  | "proposal";
+export type ActivityType = "note" | "call_note" | "transcript" | "analysis" | "email" | "proposal";
 
 export type Profile = {
   id: string;
   name: string;
   role: Role;
   created_at: string;
-}
+};
 
 export type Company = {
   id: string;
   name: string;
   domain: string | null;
   created_at: string;
-}
+};
 
 export type Contact = {
   id: string;
@@ -56,7 +44,7 @@ export type Contact = {
   phone: string | null;
   origem: Origem;
   created_at: string;
-}
+};
 
 export type Stage = {
   id: string;
@@ -64,15 +52,18 @@ export type Stage = {
   position: number;
   probability: number;
   color: string | null;
-}
+};
 
 export type Deal = {
   id: string;
   contact_id: string;
+  company_id: string | null; // 0002 — cliente explícito (herdado do contato quando ausente)
   stage_id: string;
   owner_id: string | null;
   title: string;
   value: number | null;
+  probability: number | null; // 0002 — null = herda stages.probability
+  expected_close_date: string | null; // 0002 — previsão de fechamento
   deal_type: DealType;
   mrr: number | null;
   position: number;
@@ -85,7 +76,19 @@ export type Deal = {
   calendly_event_uid: string | null;
   created_at: string;
   updated_at: string;
-}
+};
+
+export type DealHistory = {
+  id: string;
+  deal_id: string;
+  changed_by: string | null; // null = Sistema (cron/webhook com service role)
+  from_stage_id: string | null;
+  to_stage_id: string | null;
+  from_status: DealStatus | null;
+  to_status: DealStatus | null;
+  dwell_seconds: number | null; // tempo desde a mudança anterior
+  created_at: string;
+};
 
 export type Proposal = {
   id: string;
@@ -96,7 +99,7 @@ export type Proposal = {
   valid_until: string | null;
   doc_url: string | null;
   created_at: string;
-}
+};
 
 export type Template = {
   id: string;
@@ -104,7 +107,7 @@ export type Template = {
   category: TemplateCategory;
   body: string;
   created_at: string;
-}
+};
 
 export type Goal = {
   id: string;
@@ -112,7 +115,7 @@ export type Goal = {
   month: string;
   target_value: number;
   created_at: string;
-}
+};
 
 export type Activity = {
   id: string;
@@ -122,13 +125,13 @@ export type Activity = {
   content: string | null;
   metadata: Record<string, unknown>;
   created_at: string;
-}
+};
 
 export type SyncState = {
   key: string;
   value: string | null;
   updated_at: string;
-}
+};
 
 // Row preciso (reads tipados). Insert/Update como Record<string, unknown> para
 // satisfazer o constraint GenericTable do postgrest-js; os payloads de escrita são
@@ -149,6 +152,7 @@ export type Database = {
       contacts: TableShape<Contact>;
       stages: TableShape<Stage>;
       deals: TableShape<Deal>;
+      deal_history: TableShape<DealHistory>;
       proposals: TableShape<Proposal>;
       templates: TableShape<Template>;
       goals: TableShape<Goal>;
@@ -160,4 +164,4 @@ export type Database = {
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
-}
+};

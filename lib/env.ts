@@ -21,7 +21,10 @@ const serverSchema = z.object({
   GMAIL_REFRESH_TOKEN: z.string().min(1).optional(),
 });
 
-function parseOrThrow<T extends z.ZodTypeAny>(schema: T, source: Record<string, unknown>): z.infer<T> {
+function parseOrThrow<T extends z.ZodTypeAny>(
+  schema: T,
+  source: Record<string, unknown>,
+): z.infer<T> {
   const result = schema.safeParse(source);
   if (!result.success) {
     const missing = result.error.issues.map((i) => i.path.join(".")).join(", ");

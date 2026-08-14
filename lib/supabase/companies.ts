@@ -34,7 +34,12 @@ export async function updateCompany(
   id: string,
   patch: Partial<Pick<Company, "name" | "domain">>,
 ): Promise<Company> {
-  const { data, error } = await db.from("companies").update(patch).eq("id", id).select("*").single();
+  const { data, error } = await db
+    .from("companies")
+    .update(patch)
+    .eq("id", id)
+    .select("*")
+    .single();
   if (error) throw error;
   return data;
 }

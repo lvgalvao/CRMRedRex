@@ -10,10 +10,7 @@ export * from "./fillTemplate.core";
 // Preenche um playbook com os dados do contato/deal (B4, FR-014). Não envia nada.
 // A substituição é determinística; a IA (US7) pode enriquecer as dores via análise.
 
-export async function fillTemplate(
-  templateId: string,
-  dealId: string,
-): Promise<{ text: string }> {
+export async function fillTemplate(templateId: string, dealId: string): Promise<{ text: string }> {
   const db = await createClient();
   const [template, deal] = await Promise.all([getTemplate(db, templateId), getDeal(db, dealId)]);
   if (!template) throw new Error("Template não encontrado.");

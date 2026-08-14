@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Deal, Goal, Stage } from "@/lib/supabase/types";
+import { effectiveProbability } from "./dealStage";
 
 // ÚNICO ponto de cálculo do forecast (Princípio II, D9, FR-017/FR-018).
-// weighted = Σ value × (stage.probability/100) para deals abertos.
+// weighted = Σ value × (probabilidade efetiva/100) para deals abertos.
+// Probabilidade efetiva = ajuste manual do deal, ou a da etapa quando não houver (002/FR-008a).
 
 export type Forecast = {
   total: { weighted: number; gross: number };
@@ -17,6 +19,19 @@ export type Forecast = {
   };
 };
 
+/**
+ * Valor ponderado de UMA oportunidade — a menor unidade da regra de forecast.
+ * Fechadas valem 0 no ponderado (FR-013). Vive aqui para que a fórmula não se
+ * espalhe: qualquer tela que precise do ponderado importa desta função.
+ */
+export function weightedValue(
+  deal: Pick<Deal, "value" | "probability" | "status">,
+  stage: Pick<Stage, "probability"> | null | undefined,
+): number {
+  if (deal.status !== "open") return 0;
+  return (deal.value ?? 0) * (effectiveProbability(deal, stage) / 100);
+}
+
 function pct(weighted: number, target: number): number {
   return target > 0 ? Math.round((weighted / target) * 1000) / 10 : 0;
 }
@@ -26,7 +41,7 @@ function pct(weighted: number, target: number): number {
  * Considera apenas deals com status 'open'. Terminais ficam de fora do ponderado.
  */
 export function computeForecastFromData(
-  deals: Pick<Deal, "id" | "stage_id" | "owner_id" | "value" | "status">[],
+  deals: Pick<Deal, "id" | "stage_id" | "owner_id" | "value" | "status" | "probability">[],
   stages: Pick<Stage, "id" | "name" | "probability">[],
   goals: Pick<Goal, "owner_id" | "target_value">[],
   month: string,
@@ -41,9 +56,8 @@ export function computeForecastFromData(
 
   for (const d of open) {
     const stage = stageById.get(d.stage_id);
-    const prob = (stage?.probability ?? 0) / 100;
     const value = d.value ?? 0;
-    const weighted = value * prob;
+    const weighted = weightedValue(d, stage);
 
     totalWeighted += weighted;
     totalGross += value;
@@ -96,7 +110,7 @@ export function computeForecastFromData(
 export async function computeForecast(month: string): Promise<Forecast> {
   const db = await createClient();
   const [{ data: deals }, { data: stages }, { data: goals }] = await Promise.all([
-    db.from("deals").select("id, stage_id, owner_id, value, status"),
+    db.from("deals").select("id, stage_id, owner_id, value, status, probability"),
     db.from("stages").select("id, name, probability"),
     db.from("goals").select("owner_id, target_value").eq("month", month),
   ]);
