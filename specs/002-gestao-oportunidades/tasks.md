@@ -113,11 +113,11 @@ O CRM da feature 001 está no ar: `deals`, `stages`, `contacts`, `companies`, Ka
 
 ## Phase 6: Polish & Cross-Cutting
 
-- [X] T037 Verificar o limite de ~300 linhas por arquivo em `app/(crm)/deals/[id]/page.tsx` e `components/deals/DealForm.tsx`; quebrar em componentes menores se ultrapassar
-- [X] T038 [P] Rodar `npm run lint`, `npm run format` e `npm test` e deixar tudo verde
+- [x] T037 Verificar o limite de ~300 linhas por arquivo em `app/(crm)/deals/[id]/page.tsx` e `components/deals/DealForm.tsx`; quebrar em componentes menores se ultrapassar
+- [x] T038 [P] Rodar `npm run lint`, `npm run format` e `npm test` e deixar tudo verde
 - [ ] T039 Executar os 14 itens do smoke test de `quickstart.md` §4 e registrar o resultado de cada um — **pendente: exige sessão autenticada**. Já verificados sem sessão: build das 4 rotas, proteção por login (307), trigger no banco real e ordenação do histórico
-- [X] T040 [P] Conferir a nomenclatura de interface: toda tela nova usa o rótulo **Oportunidade** (o código e o banco continuam em `deal`/`deals`, conforme D1)
-- [X] T041 Revisar aderência à Constituição antes de fechar: forecast calculado só em `computeForecast`, nenhuma regra de negócio em action ou componente, nenhum segredo novo, `deal_history` sem política de escrita
+- [x] T040 [P] Conferir a nomenclatura de interface: toda tela nova usa o rótulo **Oportunidade** (o código e o banco continuam em `deal`/`deals`, conforme D1)
+- [x] T041 Revisar aderência à Constituição antes de fechar: forecast calculado só em `computeForecast`, nenhuma regra de negócio em action ou componente, nenhum segredo novo, `deal_history` sem política de escrita
 
 ---
 
